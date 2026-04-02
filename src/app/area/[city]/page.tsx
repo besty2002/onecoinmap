@@ -3,23 +3,22 @@ import HomePageClient from "@/components/home/HomePageClient";
 import { Metadata } from "next";
 
 interface AreaPageProps {
-  params: Promise<{ city: string }>; // Promise로 타입 변경
+  params: Promise<{ city: string }>;
 }
 
-// SEO 메타데이터 자동 생성
 export async function generateMetadata({ params }: AreaPageProps): Promise<Metadata> {
-  const resolvedParams = await params; // params를 기다려야 합니다.
-  const city = decodeURIComponent(resolvedParams.city);
+  const { city } = await params; // 구조 분해 할당 사용
+  const decodedCity = decodeURIComponent(city);
   return {
-    title: `${city} 500円ランチ・ワンコイングルメ | ワンコインマップ`,
-    description: `${city}エリアの安くて美味しい500円ランチ、ワンコイングルメ 정보를まとめて체크！`,
+    title: `${decodedCity} 500円ランチ・ワンコイングルメ | ワンコインマップ`,
+    description: `${decodedCity}エリア의 안 맛있고 싼 500엔 런치를 확인하세요!`,
   };
 }
 
 export default async function AreaPage({ params }: AreaPageProps) {
-  const resolvedParams = await params; // params를 기다려야 합니다.
-  const city = decodeURIComponent(resolvedParams.city);
-  const places = await getPlacesByCity(city);
+  const { city } = await params; // 구조 분해 할당 사용
+  const decodedCity = decodeURIComponent(city);
+  const places = await getPlacesByCity(decodedCity);
 
   return (
     <main className="h-screen flex flex-col">

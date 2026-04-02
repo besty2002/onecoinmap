@@ -4,29 +4,36 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Clock, Info, Heart, Share2, Tag, ChevronLeft, Navigation } from 'lucide-react';
-
 import { getPlaceById } from '@/lib/supabase/queries';
 
+interface PlacePageProps {
+  params: Promise<{ id: string }>;
+}
+
 // SEO를 위한 동적 Metadata 생성
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: PlacePageProps): Promise<Metadata> {
   const { id } = await params;
   const place = await getPlaceById(id);
   
+  if (!place) return { title: 'Not Found' };
+
+  const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800&auto=format&fit=crop";
+
   return {
     title: `${place.name} - ${place.price_label} | ワンコインマップ`,
     description: place.description,
     openGraph: {
-      images: [place.image],
+      images: [imageUrl],
     }
   };
 }
 
-export default async function PlaceDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function PlaceDetail({ params }: PlacePageProps) {
   const { id } = await params;
   const place = await getPlaceById(id);
 
   if (!place) {
-    return <div className="p-8 text-center text-muted-foreground mt-20">お店の情報を取得できませんでした。</div>;
+    return <div className="p-8 text-center text-muted-foreground mt-20">お店の 정보를 취득할 수 없었습니다.</div>;
   }
 
   const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800&auto=format&fit=crop";
@@ -62,7 +69,6 @@ export default async function PlaceDetail({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="p-5 flex-1 space-y-6">
-        {/* Header Info */}
         <div className="space-y-3">
           <div className="flex justify-between items-start">
             <h1 className="text-2xl font-bold leading-tight">{place.name}</h1>
@@ -90,7 +96,6 @@ export default async function PlaceDetail({ params }: { params: Promise<{ id: st
 
         <Separator />
 
-        {/* Location / Action */}
         <div className="space-y-4">
           <div className="flex bg-muted/50 p-4 rounded-xl items-center justify-between">
             <div className="flex gap-3 items-start flex-1 text-sm">
@@ -105,13 +110,11 @@ export default async function PlaceDetail({ params }: { params: Promise<{ id: st
               案内
             </Button>
           </div>
-          {/* Static Map Placeholder */}
           <div className="w-full h-40 bg-muted rounded-xl flex items-center justify-center border border-dashed border-muted-foreground/30">
             <p className="text-muted-foreground text-sm font-medium">地図エリア</p>
           </div>
         </div>
 
-        {/* Description */}
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-base">
             <Info className="h-4 w-4 text-muted-foreground" /> 
@@ -122,7 +125,6 @@ export default async function PlaceDetail({ params }: { params: Promise<{ id: st
           </p>
         </div>
 
-        {/* Tags */}
         <div className="space-y-3">
           <h3 className="font-semibold flex items-center gap-2 text-base">
             <Tag className="h-4 w-4 text-muted-foreground" /> 
@@ -130,19 +132,17 @@ export default async function PlaceDetail({ params }: { params: Promise<{ id: st
           </h3>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag: any) => (
-              <Badge key={tag} variant="outline" className="bg-background">#{tag.name}</Badge>
+              <Badge key={tag.id || tag.name} variant="outline" className="bg-background">#{tag.name}</Badge>
             ))}
             {tags.length === 0 && <span className="text-xs text-muted-foreground">登録されたタグはありません</span>}
           </div>
         </div>
         
-        {/* Footer Info */}
         <div className="text-xs text-muted-foreground text-right pt-6 pb-20 md:pb-6">
           <p>登録者: {authorName}</p>
           <p>更新: {new Date(place.created_at).toLocaleDateString('ja-JP')}</p>
         </div>
       </div>
-{/* Navigation import needs to be valid */}
     </div>
   );
 }
