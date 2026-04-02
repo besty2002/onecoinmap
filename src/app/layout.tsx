@@ -26,6 +26,13 @@ export default function RootLayout({
       className={`${notoSansJP.variable} h-full antialiased font-sans`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#FF4D00" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
       <body 
         className="min-h-screen flex flex-col bg-background text-foreground pb-16 sm:pb-0"
         suppressHydrationWarning
@@ -33,6 +40,21 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1 w-full flex flex-col">{children}</main>
         <Footer />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
