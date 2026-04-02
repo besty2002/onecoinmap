@@ -51,7 +51,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
 
       <div className="flex-1 flex overflow-hidden w-full relative">
         {/* Map View */}
-        <div className={`flex-1 absolute md:static inset-0 transition-opacity duration-300 ${view === "map" ? "z-0 opacity-100" : "-z-10 opacity-0 md:opacity-100 md:z-0"}`}>
+        <div className={`flex-1 absolute md:static inset-0 transition-all duration-300 ${view === "map" ? "z-30 opacity-100 visible" : "-z-10 opacity-0 invisible md:visible md:opacity-100 md:z-0"}`}>
           <MapComponent 
             places={mapMarkers} 
             onMarkerClick={(id) => {
@@ -98,9 +98,11 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
 
       {/* Floating Bottom Tab Bar (Permanent) */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-100 z-50 flex items-center justify-around px-4">
-        <Home className="h-7 w-7 text-gray-900 cursor-pointer" />
-        <button onClick={() => setView("map")}>
-          <Search className={`h-7 w-7 ${view === "map" ? "text-primary font-bold" : "text-gray-400"}`} />
+        <button onClick={() => setView("list")}>
+          <Home className={`h-7 w-7 ${view === "list" ? "text-primary px-0.5" : "text-gray-400"}`} />
+        </button>
+        <button onClick={() => setView(view === "map" ? "list" : "map")}>
+          <MapPin className={`h-7 w-7 ${view === "map" ? "text-primary font-bold" : "text-gray-400"}`} />
         </button>
         <UploadPlaceModal />
         <Link href="/ranking">
