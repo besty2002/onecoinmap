@@ -9,7 +9,7 @@ import { MapPin, Clock, Info, Heart, Share2, Tag, ChevronLeft, Navigation } from
 import { getPlaceById } from '@/lib/supabase/queries';
 
 // SEO를 위한 동적 Metadata 생성
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const place = await getPlaceById(id);
   
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function PlaceDetail({ params }: { params: { id: string } }) {
+export default async function PlaceDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const place = await getPlaceById(id);
 
@@ -48,13 +48,10 @@ export default async function PlaceDetail({ params }: { params: { id: string } }
       
       {/* Hero Image */}
       <div className="relative w-full aspect-[4/3] md:aspect-[16/6] bg-muted">
-        <Image 
+        <img 
           src={imageUrl} 
           alt={place.name} 
-          fill 
-          sizes="(max-width: 768px) 100vw, 768px"
-          priority
-          className="object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute top-4 left-4 hidden md:block z-10">
           <Link href="/">
