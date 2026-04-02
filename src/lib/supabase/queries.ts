@@ -52,3 +52,19 @@ export async function getUserSaves(userId: string) {
   }
   return data;
 }
+
+export async function getPlacesByCity(city: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("places")
+    .select("*, place_images(image_url)")
+    .eq("status", "active")
+    .ilike("city", `%${city}%`)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching places by city:", error);
+    return [];
+  }
+  return data;
+}

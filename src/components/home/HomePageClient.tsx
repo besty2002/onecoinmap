@@ -67,12 +67,10 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
                   <Card className="overflow-hidden border-none shadow-sm group-hover:shadow-md transition-shadow bg-card">
                     <div className="flex h-28">
                       <div className="w-28 relative flex-shrink-0 bg-muted">
-                        <Image 
+                        <img 
                           src={imageUrl} 
                           alt={place.name} 
-                          fill 
-                          className="object-cover"
-                          sizes="112px"
+                          className="absolute inset-0 w-full h-full object-cover"
                         />
                       </div>
                       <div className="p-3 flex flex-col justify-between flex-1 min-w-0">
