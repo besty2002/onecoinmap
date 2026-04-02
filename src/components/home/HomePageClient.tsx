@@ -1,24 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, Navigation } from "lucide-react";
+import { MapPin, Search, Navigation, Heart, Share2, Bookmark, PlusSquare, Home, Award, User, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MapComponent } from "@/components/map/MapComponent";
+import useEmblaCarousel from "embla-carousel-react";
+import { UploadPlaceModal } from "@/components/places/UploadPlaceModal";
 
 export default function HomePageClient({ initialPlaces }: { initialPlaces: any[] }) {
-  const [view, setView] = useState<"map" | "list">("map");
+  const [view, setView] = useState<"map" | "list">("list"); // 기본 뷰를 리스트(피드)로 설정
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [likedPlaces, setLikedPlaces] = useState<Record<string, boolean>>({});
 
-  // 🚀 カテゴリフィルタリングロジック
+  // 🚀 카테고리 필터링
   const filteredPlaces = selectedCategory 
     ? initialPlaces.filter(p => p.category === selectedCategory)
     : initialPlaces;
 
-  // DB形式からMapComponentが求める形にマッピング
+  // 지도 마커 매핑
   const mapMarkers = filteredPlaces.map((p) => ({
     id: p.id,
     name: p.name,
@@ -31,44 +34,22 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
 
   const categories = ["ラーメン", "カフェ・ベーカリー", "寿司・和食", "ファストフード", "居酒屋・バー"];
 
+  const toggleLike = (id: string) => {
+    setLikedPlaces(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
-    <div className="flex flex-col h-full w-full relative font-sans">
-      {/* Search Header */}
-      <div className="p-4 bg-white/95 backdrop-blur-md z-10 space-y-4 shadow-sm border-b sticky top-0 md:static">
-        <div className="flex gap-2 relative">
-          <Input 
-            placeholder="エリア、店名、料理などで検索..." 
-            className="w-full pl-10 rounded-2xl bg-gray-100 border-none h-12 text-sm focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
-          />
-          <Search className="absolute left-3.5 top-4 h-4 w-4 text-gray-400" />
-          <Button size="icon" variant="secondary" className="rounded-2xl shrink-0 h-12 w-12 shadow-sm bg-gray-100 hover:bg-gray-200 border-none">
-            <Navigation className="h-4 w-4 text-gray-600" />
-          </Button>
-        </div>
-        
-        {/* Category Filters */}
-        <div className="flex flex-nowrap overflow-x-auto pb-1 gap-2 no-scrollbar">
-          <Badge 
-            variant={selectedCategory === null ? "secondary" : "outline"} 
-            className={`rounded-full px-5 py-2.5 whitespace-nowrap cursor-pointer transition-all border-none ${selectedCategory === null ? "bg-black text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-            onClick={() => setSelectedCategory(null)}
-          >
-            すべて
-          </Badge>
-          {categories.map(cat => (
-            <Badge 
-              key={cat}
-              variant={selectedCategory === cat ? "secondary" : "outline"} 
-              className={`rounded-full px-5 py-2.5 whitespace-nowrap cursor-pointer transition-all border-none ${selectedCategory === cat ? "bg-black text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </Badge>
-          ))}
+    <div className="flex flex-col h-full w-full relative bg-[#FBFBFA] font-sans pb-20">
+      {/* Search Header (Instagram-style) */}
+      <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b px-4 py-3 flex items-center justify-between shadow-sm">
+        <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent italic">OneCoinMap</h1>
+        <div className="flex gap-4 text-gray-700">
+          <Heart className="h-6 w-6 cursor-pointer hover:text-red-500 transition-colors" />
+          <Search className="h-6 w-6 cursor-pointer" />
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden w-full relative bg-gray-50/50">
+      <div className="flex-1 flex overflow-hidden w-full relative">
         {/* Map View */}
         <div className={`flex-1 absolute md:static inset-0 transition-opacity duration-300 ${view === "map" ? "z-0 opacity-100" : "-z-10 opacity-0 md:opacity-100 md:z-0"}`}>
           <MapComponent 
@@ -79,84 +60,144 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
           />
         </div>
 
-        {/* List View */}
-        <div className={`w-full md:w-[420px] border-l bg-white z-10 overflow-y-auto transition-all duration-500 shadow-2xl md:shadow-none ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
-          <div className="p-5 space-y-6">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="font-bold text-xl tracking-tight text-gray-900">周辺の飲食店</h2>
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">{filteredPlaces.length}件</span>
-            </div>
-            
-            <div className="grid gap-4">
-              {filteredPlaces.map((place) => {
-                const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=600&auto=format&fit=crop";
+        {/* Instagram-style Feed View */}
+        <div className={`w-full md:w-[420px] bg-white z-10 overflow-y-auto transition-all duration-300 ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
+          {/* Categories Tab Bar */}
+          <div className="flex flex-nowrap overflow-x-auto py-4 px-4 gap-3 no-scrollbar sticky top-0 bg-white z-20 border-b">
+            {categories.map(cat => (
+              <button 
+                key={cat}
+                onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                className={`flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-90`}
+              >
+                <div className={`w-1 6 h-16 rounded-full p-[2px] ${selectedCategory === cat ? "bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600" : "bg-gray-200"}`}>
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center p-0.5">
+                    <div className="w-full h-full rounded-full bg-gray-50 flex items-center justify-center text-xl font-bold">
+                      {cat.charAt(0)}
+                    </div>
+                  </div>
+                </div>
+                <span className={`text-[10px] font-bold ${selectedCategory === cat ? "text-gray-900" : "text-gray-400"}`}>{cat}</span>
+              </button>
+            ))}
+          </div>
 
-                return (
-                  <Link href={`/place/${place.id}`} key={place.id} className="block group">
-                    <Card className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 bg-white rounded-[24px]">
-                      <div className="flex h-32">
-                        <div className="w-32 h-32 flex-shrink-0 relative overflow-hidden">
-                          <img 
-                            src={imageUrl} 
-                            alt={place.name} 
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
-                            crossOrigin="anonymous"
-                          />
-                        </div>
-                        <div className="p-4 flex flex-col justify-between flex-1 min-w-0">
-                          <div>
-                            <div className="flex justify-between items-start mb-1.5">
-                              <h3 className="font-bold text-base truncate pr-2 leading-tight text-gray-900 group-hover:text-primary transition-colors">{place.name}</h3>
-                              <Badge variant="default" className="text-[10px] px-2 py-0.5 h-5 bg-orange-100 text-orange-600 border-none font-bold shrink-0">{place.price_label}</Badge>
-                            </div>
-                            <p className="text-[11px] text-gray-500 truncate flex items-center gap-1 mt-1 font-medium italic">
-                              <MapPin className="h-3 w-3 inline text-orange-400" /> {place.address}
-                            </p>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-600">{place.category}</span>
-                            <span className="flex items-center gap-0.5 font-bold text-amber-500 text-sm">⭐ {place.rating || "4.5"}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+          <div className="divide-y divide-gray-100">
+            {filteredPlaces.map((place) => (
+              <PlaceFeedCard key={place.id} place={place} isLiked={!!likedPlaces[place.id]} onLike={() => toggleLike(place.id)} />
+            ))}
             
             {filteredPlaces.length === 0 && (
-              <div className="py-24 text-center text-gray-400 bg-gray-50 rounded-[32px] border border-dashed border-gray-200 mx-1">
-                <p className="font-medium text-sm">該当するお店が見つかりませんでした。</p>
-                <Button variant="outline" className="mt-5 rounded-full px-8 border-gray-200 text-gray-500 hover:bg-white" onClick={() => setSelectedCategory(null)}>
-                  すべてのカテゴリーを表示
-                </Button>
+              <div className="py-24 text-center text-gray-400">
+                <p>該当するお店が見つかりませんでした。</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Floating Toggle Button (Mobile) */}
-      <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-        <Button 
-          className="rounded-full px-8 bg-black text-white hover:bg-black/90 font-bold shadow-2xl h-14 border-none flex items-center gap-3 group transition-all active:scale-95"
-          onClick={() => setView(view === "map" ? "list" : "map")}
-        >
-          {view === "map" ? (
-            <>
-              <Search className="h-5 w-5" />
-              <span>リストを表示</span>
-            </>
-          ) : (
-            <>
-              <MapPin className="h-5 w-5" />
-              <span>地図を表示</span>
-            </>
-          )}
-        </Button>
+      {/* Floating Bottom Tab Bar (Permanent) */}
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-100 z-50 flex items-center justify-around px-4">
+        <Home className="h-7 w-7 text-gray-900 cursor-pointer" />
+        <button onClick={() => setView("map")}>
+          <Search className={`h-7 w-7 ${view === "map" ? "text-primary font-bold" : "text-gray-400"}`} />
+        </button>
+        <UploadPlaceModal />
+        <Link href="/ranking">
+          <Award className="h-7 w-7 text-gray-400 cursor-pointer" />
+        </Link>
+        <User className="h-7 w-7 text-gray-400 cursor-pointer" />
+      </div>
+    </div>
+  );
+}
+
+// 📸 Instagram Feed Card Component
+function PlaceFeedCard({ place, isLiked, onLike }: { place: any, isLiked: boolean, onLike: () => void }) {
+  const images = place.place_images && place.place_images.length > 0
+    ? place.place_images.map((img: any) => img.image_url)
+    : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800&auto=format&fit=crop"];
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+
+  return (
+    <div className="bg-white pb-3">
+      {/* Card Header */}
+      <div className="flex items-center px-4 py-3 gap-3">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[2px]">
+          <div className="w-full h-full rounded-full bg-white p-0.5">
+            <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold">OC</div>
+          </div>
+        </div>
+        <div className="flex flex-col flex-1 min-w-0">
+          <Link href={`/place/${place.id}`} className="font-bold text-sm truncate hover:underline">{place.name}</Link>
+          <div className="flex items-center text-[10px] text-gray-500 gap-1 font-medium italic">
+            <MapPin className="h-2.5 w-2.5 text-orange-400" /> {place.address?.split(' ').slice(0, 3).join(' ')}
+          </div>
+        </div>
+        <Badge variant="outline" className="text-[10px] bg-orange-100 border-none font-bold text-orange-600 px-2 py-0.5">{place.price_label}</Badge>
+      </div>
+
+      {/* Image Carousel */}
+      <div className="relative group touch-pan-y">
+        <div className="overflow-hidden bg-gray-100 aspect-square" ref={emblaRef}>
+          <div className="flex">
+            {images.map((src: string, i: number) => (
+              <div className="flex-[0_0_100%] min-w-0 relative h-[400px]" key={i}>
+                <img 
+                  src={src} 
+                  alt={place.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {images.length > 1 && (
+          <>
+            <button 
+              onClick={scrollPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button 
+              onClick={scrollNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Interaction Buttons */}
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Heart 
+            onClick={onLike}
+            className={`h-7 w-7 cursor-pointer transition-all active:scale-125 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-800"}`} 
+          />
+          <Share2 className="h-6 w-6 text-gray-800 cursor-pointer" />
+        </div>
+        <Bookmark className="h-6 w-6 text-gray-800 cursor-pointer" />
+      </div>
+
+      {/* Caption & Info */}
+      <div className="px-4 space-y-1.5">
+        <div className="text-sm font-bold truncate">
+          <span className="text-orange-600 mr-2">⭐ {place.rating || "4.5"}</span>
+          <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px] text-gray-600">{place.category}</span>
+        </div>
+        <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+          <span className="font-bold text-gray-900 mr-2">OneCoinMap</span>
+          이번 주 추천 맛집! 도쿄 중심에서 만나는 500엔의 행복, {place.name}입니다. #가성비맛집 #도쿄여행
+        </p>
+        <span className="text-[10px] text-gray-400 uppercase font-bold">1시간 전</span>
       </div>
     </div>
   );
