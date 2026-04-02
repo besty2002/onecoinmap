@@ -98,7 +98,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
     if (isNearMe) displayPlaces = displayPlaces.filter(p => p.distance <= distRange).sort((a,b) => a.distance - b.distance);
   }
 
-  const mapMarkers = displayPlaces.map(p => ({ id: p.id, name: p.name, lat: p.latitude, lng: p.longitude, price: p.price_label, category: p.category }));
+  const mapMarkers = displayPlaces.map(p => ({ id: p.id, name: p.name, lat: p.latitude, lng: p.longitude, price: p.price_label, category: p.category, address: p.address }));
   const categories = ["ラーメン", "カフェ・ベーカリー", "寿司・和食", "ファ스트フード", "居酒屋・バー"];
 
   return (
