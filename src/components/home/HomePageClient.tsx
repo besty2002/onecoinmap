@@ -11,10 +11,15 @@ import { MapComponent } from "@/components/map/MapComponent";
 
 export default function HomePageClient({ initialPlaces }: { initialPlaces: any[] }) {
   const [view, setView] = useState<"map" | "list">("map");
-  const [places, setPlaces] = useState(initialPlaces);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // 🚀 카테고리 필터링 로직
+  const filteredPlaces = selectedCategory 
+    ? initialPlaces.filter(p => p.category === selectedCategory)
+    : initialPlaces;
 
   // DB 형식에서 MapComponent가 원하는 형태로 매핑
-  const mapMarkers = places.map((p) => ({
+  const mapMarkers = filteredPlaces.map((p) => ({
     id: p.id,
     name: p.name,
     lat: p.latitude,
@@ -24,12 +29,14 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
     address: p.address,
   }));
 
+  const categories = ["라멘", "카페\u00b7\ubca0\uc774\ucee4\ub9ac", "\uc2a4\uc2dc\u00b7\uc77c\uc2dd", "\ud328\uc2a4\ud2b8\ud478\ub4dc", "\uc774\uc790\uce74\uc57c\u00b7\uc220\uc9d1"];
+
   return (
     <div className="flex flex-col h-full w-full relative">
       <div className="p-4 bg-background/95 backdrop-blur z-10 space-y-3 shadow-sm border-b sticky top-0 md:static">
         <div className="flex gap-2 relative">
           <Input 
-            placeholder="エリア、店名、料理名で検索..." 
+            placeholder="\uc5d0\ub9ac\uc5b4, \uc2dd\ub2f9\uba85, \uc694\ub9ac \uc774\ub984\uc73c\ub85c \uac80\uc0c9..." 
             className="w-full pl-9 rounded-full bg-muted border-none"
           />
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -38,11 +45,23 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
           </Button>
         </div>
         <div className="flex flex-nowrap overflow-x-auto pb-1 gap-2 no-scrollbar hide-scrollbar">
-          <Badge variant="secondary" className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer hover:bg-secondary/80">すべて</Badge>
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer hover:bg-muted">500円以下</Badge>
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer hover:bg-muted">1000円以下</Badge>
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer hover:bg-muted">ランチ</Badge>
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer hover:bg-muted">カフェ</Badge>
+          <Badge 
+            variant={selectedCategory === null ? "secondary" : "outline"} 
+            className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer"
+            onClick={() => setSelectedCategory(null)}
+          >
+            \uc804\uccb4
+          </Badge>
+          {categories.map(cat => (
+            <Badge 
+              key={cat}
+              variant={selectedCategory === cat ? "secondary" : "outline"} 
+              className="rounded-full px-4 py-1.5 whitespace-nowrap cursor-pointer"
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </Badge>
+          ))}
         </div>
       </div>
 
@@ -58,8 +77,8 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
 
         <div className={`w-full md:w-[400px] border-l bg-background z-10 overflow-y-auto transition-transform ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
           <div className="p-4 space-y-4">
-            <h2 className="font-semibold px-1">周辺の見つかったお店 ({places.length})</h2>
-            {places.map((place) => {
+            <h2 className="font-semibold px-1">\uc8fc\ubcc0\uc758 \ucc3e\uc740 \uc2dd\ub2f9 ({filteredPlaces.length})</h2>
+            {filteredPlaces.map((place) => {
               const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=600&auto=format&fit=crop";
 
               return (
@@ -97,7 +116,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
               );
             })}
             
-            {places.length === 0 && (
+            {filteredPlaces.length === 0 && (
               <div className="py-12 text-center text-muted-foreground">
                 <p>登録されたお店がありません。</p>
                 <Link href="/add">
