@@ -70,11 +70,14 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
                 <Link href={`/place/${place.id}`} key={place.id} className="block group">
                   <Card className="overflow-hidden border-none shadow-sm group-hover:shadow-md transition-shadow bg-card">
                     <div className="flex h-28">
-                      <div className="w-28 relative flex-shrink-0 bg-muted">
+                      <div className="w-28 h-28 flex-shrink-0 bg-muted overflow-hidden">
+                        {/* 디버그용: 모바일에서 주소가 제대로 넘어오는지 텍스트로 확인 */}
+                        {index === 0 && <span className="absolute z-20 bg-white text-[8px] truncate w-24 opacity-50">{imageUrl.substring(0, 30)}...</span>}
                         <img 
                           src={imageUrl} 
                           alt={place.name} 
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="w-full h-full object-cover"
+                          loading="eager"
                         />
                       </div>
                       <div className="p-3 flex flex-col justify-between flex-1 min-w-0">
