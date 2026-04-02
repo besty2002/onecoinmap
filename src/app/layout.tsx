@@ -24,8 +24,12 @@ export default function RootLayout({
     <html
       lang="ja"
       className={`${notoSansJP.variable} h-full antialiased font-sans`}
+      suppressHydrationWarning
     >
-      <body className="min-h-screen flex flex-col bg-background text-foreground pb-16 sm:pb-0">
+      <body 
+        className="min-h-screen flex flex-col bg-background text-foreground pb-16 sm:pb-0"
+        suppressHydrationWarning
+      >
         <Navbar />
         <main className="flex-1 w-full flex flex-col">{children}</main>
         <Footer />
