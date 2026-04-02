@@ -60,9 +60,9 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
           <div className="p-4 space-y-4">
             <h2 className="font-semibold px-1">周辺の見つかったお店 ({places.length})</h2>
             {places.map((place, index) => {
-              // 🧪 디버깅을 위한 하드코딩 테스트 (첫 번째 항목)
+              // 🧪 실험: Supabase가 아닌 다른 도메인(Unsplash) 사진이 모바일에서 나오는지 확인
               const imageUrl = index === 0 
-                ? "https://mhgepqndsnnxcmzgekku.supabase.co/storage/v1/object/public/place-images/google-places/ChIJl8OG4ZuNGGAR0wZrm_XbEM8/0.jpg"
+                ? "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=400&auto=format&fit=crop"
                 : (place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=600&auto=format&fit=crop");
               
               if (index === 0) console.log("Test Image URL:", imageUrl);
