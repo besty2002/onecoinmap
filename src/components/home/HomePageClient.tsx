@@ -111,12 +111,13 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        <div className={`flex-1 ${view === "map" ? "block" : "hidden md:block"}`}>
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* 🚀 지도 컨테이너 (모바일 가시성 확보) */}
+        <div className={`flex-1 absolute md:static inset-0 transition-all duration-300 ${view === "map" ? "z-30 opacity-100 visible" : "-z-10 opacity-0 invisible md:visible md:opacity-100 md:z-0"}`}>
           <MapComponent places={mapMarkers} />
         </div>
 
-        <div className={`w-full md:w-[420px] bg-white overflow-y-auto ${view === "list" ? "block" : "hidden md:block"}`}>
+        <div className={`w-full md:w-[420px] bg-white overflow-y-auto z-10 transition-all duration-300 ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
           {isNearMe && (
             <div className="bg-orange-50 px-4 py-2 flex items-center justify-between border-b sticky top-0 z-30">
               <span className="text-[10px] font-bold text-orange-700 italic">📍 내 주변 {distRange}km 모드</span>
