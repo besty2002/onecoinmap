@@ -59,25 +59,21 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
         <div className={`w-full md:w-[400px] border-l bg-background z-10 overflow-y-auto transition-transform ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
           <div className="p-4 space-y-4">
             <h2 className="font-semibold px-1">周辺の見つかったお店 ({places.length})</h2>
-            {places.map((place, index) => {
-              // 🧪 실험: Supabase가 아닌 다른 도메인(Unsplash) 사진이 모바일에서 나오는지 확인
-              const imageUrl = index === 0 
-                ? "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=400&auto=format&fit=crop"
-                : (place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=600&auto=format&fit=crop");
-              
-              if (index === 0) console.log("Test Image URL:", imageUrl);
+            {places.map((place) => {
+              const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=600&auto=format&fit=crop";
+
               return (
                 <Link href={`/place/${place.id}`} key={place.id} className="block group">
                   <Card className="overflow-hidden border-none shadow-sm group-hover:shadow-md transition-shadow bg-card">
                     <div className="flex h-28">
                       <div className="w-28 h-28 flex-shrink-0 bg-muted overflow-hidden">
-                        {/* 디버그용: 모바일에서 주소가 제대로 넘어오는지 텍스트로 확인 */}
-                        {index === 0 && <span className="absolute z-20 bg-white text-[8px] truncate w-24 opacity-50">{imageUrl.substring(0, 30)}...</span>}
                         <img 
                           src={imageUrl} 
                           alt={place.name} 
                           className="w-full h-full object-cover"
-                          loading="eager"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
                         />
                       </div>
                       <div className="p-3 flex flex-col justify-between flex-1 min-w-0">
