@@ -218,7 +218,7 @@ function PlaceFeedCard({ place, currentUser, isLiked, isBookmarked, onLike, onBo
       {/* Media Carousel */}
       <div className="relative group h-[400px]">
         <div className="overflow-hidden bg-gray-50 h-full" ref={emblaRef}>
-          <div className="flex h-full">{images.map((src, i) => (<div className="flex-[0_0_100%] min-w-0 h-full relative" key={i}><img src={src} className="w-full h-full object-cover" alt="p" /></div>))}</div>
+          <div className="flex h-full">{images.map((src: string, i: number) => (<div className="flex-[0_0_100%] min-w-0 h-full relative" key={i}><img src={src} className="w-full h-full object-cover" alt="p" /></div>))}</div>
         </div>
         {images.length > 1 && (
             <>
