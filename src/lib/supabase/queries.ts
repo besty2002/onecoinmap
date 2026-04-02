@@ -1,12 +1,13 @@
 import { createClient } from "./server";
 
-export async function getPlaces() {
+export async function getPlaces(from = 0, to = 9) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("places")
     .select("*, place_images(image_url)")
     .eq("status", "active")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error("Error fetching places:", error);
