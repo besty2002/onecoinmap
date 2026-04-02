@@ -34,7 +34,7 @@ export default async function EditProfilePage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-      const { error } = await supabase
+      await supabase
         .from("profiles")
         .update({ 
           nickname, 
@@ -44,11 +44,17 @@ export default async function EditProfilePage() {
         })
         .eq("id", user.id);
 
-      if (!error) {
-        revalidatePath("/profile");
-        redirect("/profile");
-      }
+      revalidatePath("/profile");
+      redirect("/profile");
     }
+  }
+
+  // 🚀 서버 액션: 로그아웃
+  async function signOut() {
+    "use server";
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/");
   }
 
   return (
@@ -104,10 +110,16 @@ export default async function EditProfilePage() {
           </div>
         </div>
 
-        <div className="pt-8">
+        <div className="pt-8 space-y-4">
           <Button type="submit" className="w-full rounded-xl h-11 font-black bg-black text-white hover:bg-black/90 transition-all">
             저장하기
           </Button>
+          
+          <form action={signOut} className="w-full">
+            <button type="submit" className="w-full text-center text-red-500 font-bold text-sm py-4 border-t hover:bg-gray-50 transition-all">
+              로그아웃
+            </button>
+          </form>
         </div>
       </form>
     </div>
