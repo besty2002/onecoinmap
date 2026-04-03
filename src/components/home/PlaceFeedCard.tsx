@@ -74,18 +74,11 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
           <Bookmark className={`h-6 w-6 ${isBookmarked ? "fill-gray-900 text-gray-900" : ""}`} />
         </button>
       </div>
-
-      <div className="px-4 space-y-2">
+      <div className="px-4 space-y-2 pb-2">
         <p className="text-[13px] leading-relaxed">
           <span className="font-bold mr-2 text-gray-900">{author?.display_name || "OCM"}</span>
           원코인맵 도쿄 가성비 {place.category} 탐험 성공! {place.name} 추천합니다. ✨
         </p>
-        {comments.slice(0, 3).map((c: any, i: number) => (
-            <div key={i} className="text-[12px] flex gap-2">
-              <span className="font-bold">{c.profiles?.display_name || "Voyager"}</span>
-              <span className="text-gray-500 truncate">{c.content}</span>
-            </div>
-        ))}
       </div>
     </div>
   );
