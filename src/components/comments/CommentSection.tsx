@@ -23,7 +23,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
       .from("comments")
       .select(`
         *,
-        profiles:user_id(display_name, avatar_url)
+        profiles (display_name, avatar_url)
       `)
       .eq("place_id", placeId)
       .order("created_at", { ascending: true });
@@ -49,7 +49,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
       })
       .select(`
         *,
-        profiles:user_id(display_name, avatar_url)
+        profiles (display_name, avatar_url)
       `)
       .single();
 
@@ -68,25 +68,29 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
       </div>
 
       <div className="space-y-4 px-4 max-h-[400px] overflow-y-auto no-scrollbar">
-        {comments.map((c) => (
-          <div key={c.id} className="flex gap-3 text-sm group">
-            <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 relative">
-              <Image 
-                src={c.profiles?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
-                alt="v" fill className="object-cover" 
-              />
-            </div>
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-900">{c.profiles?.display_name || "Voyager"}</span>
-                <span className="text-[10px] text-gray-400">
-                    {new Date(c.created_at).toLocaleDateString()}
-                </span>
+        {comments.map((c) => {
+          // Supabase 조인 결과가 배열일 경우와 객체일 경우를 모두 처리
+          const profile = Array.isArray(c.profiles) ? c.profiles[0] : c.profiles;
+          return (
+            <div key={c.id} className="flex gap-3 text-sm group">
+              <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 relative border">
+                <Image 
+                  src={profile?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
+                  alt="v" fill className="object-cover" 
+                />
               </div>
-              <p className="text-gray-600 leading-relaxed">{c.content}</p>
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-gray-900">{profile?.display_name || "Voyager"}</span>
+                  <span className="text-[10px] text-gray-400">
+                      {new Date(c.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-gray-600 leading-relaxed">{c.content}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {comments.length === 0 && (
           <div className="py-10 text-center text-gray-400 text-xs">
             아직 댓글이 없습니다. 첫 댓글을 남겨보세요! ✨

@@ -46,7 +46,9 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
     ? place.place_images.map((img: any) => img.image_url)
     : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800"];
   
-  const author = place.profiles;
+  // Supabase 조인 결과가 배열일 경우를 대비한 안전한 추출
+  const author = Array.isArray(place.profiles) ? place.profiles[0] : place.profiles;
+  const tags = Array.isArray(place.place_tags) ? place.place_tags : [];
 
   return (
     <div className="flex flex-col h-full bg-white md:max-w-xl md:mx-auto w-full min-h-screen pb-24">
@@ -138,9 +140,9 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
                 <Tag className="h-4 w-4 text-gray-400" /> 특징 탐색
             </h3>
             <div className="flex flex-wrap gap-1.5">
-                {place.place_tags?.map((t: any) => (
-                    <span key={t.id} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags.name}</span>
-                )) || <span className="text-[11px] text-gray-400">등록된 태그가 없습니다.</span>}
+                {tags.length > 0 ? tags.map((t: any) => (
+                    <span key={t.id} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags?.name || "태그"}</span>
+                )) : <span className="text-[11px] text-gray-400">등록된 태그가 없습니다.</span>}
             </div>
         </div>
 
