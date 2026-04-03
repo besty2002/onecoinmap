@@ -46,9 +46,9 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
     ? place.place_images.map((img: any) => img.image_url)
     : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800"];
   
-  // Supabase 조인 결과가 배열일 경우를 대비한 안전한 추출
-  const author = Array.isArray(place.profiles) ? place.profiles[0] : place.profiles;
-  const tags = Array.isArray(place.place_tags) ? place.place_tags : [];
+  const authorRaw = Array.isArray(place.profiles) ? place.profiles[0] : place.profiles;
+  const author = authorRaw as { display_name: string; avatar_url: string } | null;
+  const tags = (Array.isArray(place.place_tags) ? place.place_tags : []) as any[];
 
   return (
     <div className="flex flex-col h-full bg-white md:max-w-xl md:mx-auto w-full min-h-screen pb-24">
@@ -68,7 +68,10 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
       {/* 🚀 User Info Header (IG Style) */}
       <div className="flex items-center px-4 py-3 gap-3">
         <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden relative border">
-             <Image src={author?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} alt="p" fill className="object-cover" />
+           <Image 
+              src={(author?.avatar_url) || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
+              alt="profile" fill className="object-cover" 
+           />
         </div>
         <div className="flex flex-col">
             <span className="font-bold text-[13px] leading-tight">{author?.display_name || "OCM Voyager"}</span>

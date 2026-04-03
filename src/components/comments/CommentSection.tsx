@@ -100,8 +100,11 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
 
       {currentUser ? (
         <form onSubmit={handleSubmit} className="p-4 border-t sticky bottom-0 bg-white z-10 flex gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 relative">
-             <Image src={currentUser.user_metadata?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} alt="me" fill className="object-cover" />
+          <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 relative border">
+             <Image 
+                src={(currentUser?.user_metadata?.avatar_url as string) || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
+                alt="me" fill className="object-cover" 
+             />
           </div>
           <div className="flex-1 relative">
             <Input 
