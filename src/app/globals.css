@@ -124,8 +124,13 @@
   body {
     @apply bg-[#FBFBFA] text-[#1D1D1F] antialiased;
     font-feature-settings: "palt";
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
+  }
+  button, a {
+    touch-action: manipulation;
   }
 }

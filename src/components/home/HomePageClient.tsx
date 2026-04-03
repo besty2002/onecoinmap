@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useInView } from "react-intersection-observer";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, Heart, Share2, Bookmark, Home, Award, User, ChevronLeft, ChevronRight, LocateFixed, Zap, MessageCircle, LucideLoader2 } from "lucide-react";
+import { Search, MapPin, Home, Award, User, LocateFixed, LucideLoader2 } from "lucide-react";
 import Link from "next/link";
-import useEmblaCarousel from "embla-carousel-react";
 import { UploadPlaceModal } from "@/components/places/UploadPlaceModal";
 import { createClient } from "@/lib/supabase/client";
+import PlaceFeedCard from "./PlaceFeedCard";
 
 // 🚀 지도 컴포넌트 지연 로딩 (Lazy Loading)
 const MapComponent = dynamic(() => import("@/components/map/MapComponent").then(mod => mod.MapComponent), {
@@ -52,7 +50,12 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
 
     const { data: newPlaces, error } = await supabase
       .from("places")
-      .select("*, place_images(image_url)")
+      .select(`
+        *,
+        place_images(image_url),
+        profiles(id, nickname, level, avatar_url),
+        comments(id, content, created_at, profiles(nickname, level))
+      `)
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .range(from, to);
@@ -82,23 +85,51 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
     getSession();
   }, [supabase]);
 
-  const handleNearMeToggle = () => {
+  const handleNearMeToggle = useCallback(() => {
     if (!isNearMe) {
         navigator.geolocation.getCurrentPosition(
             (pos) => { setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setIsNearMe(true); },
             (err) => alert("Error: " + err.message)
         );
     } else setIsNearMe(false);
-  };
+  }, [isNearMe]);
 
-  let displayPlaces = [...places];
-  if (selectedCategory) displayPlaces = displayPlaces.filter(p => p.category === selectedCategory);
-  if (userLoc) {
-    displayPlaces = displayPlaces.map(p => ({ ...p, distance: calculateDistance(userLoc.lat, userLoc.lng, p.latitude, p.longitude) }));
-    if (isNearMe) displayPlaces = displayPlaces.filter(p => p.distance <= distRange).sort((a,b) => a.distance - b.distance);
-  }
+  const toggleLike = useCallback((placeId: string) => {
+    setLikedPlaces(p => ({ ...p, [placeId]: !p[placeId] }));
+  }, []);
 
-  const mapMarkers = displayPlaces.map(p => ({ id: p.id, name: p.name, lat: p.latitude, lng: p.longitude, price: p.price_label, category: p.category, address: p.address }));
+  const toggleBookmark = useCallback(async (placeId: string) => {
+    if (!user) return;
+    const isB = !!bookmarkedPlaces[placeId];
+    setBookmarkedPlaces(p => ({ ...p, [placeId]: !isB }));
+    
+    if (isB) {
+      await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('place_id', placeId);
+    } else {
+      await supabase.from('bookmarks').insert({ user_id: user.id, place_id: placeId });
+    }
+  }, [user, bookmarkedPlaces, supabase]);
+
+  const displayPlaces = useMemo(() => {
+    let list = [...places];
+    if (selectedCategory) list = list.filter(p => p.category === selectedCategory);
+    if (userLoc) {
+      list = list.map(p => ({ ...p, distance: calculateDistance(userLoc.lat, userLoc.lng, p.latitude, p.longitude) }));
+      if (isNearMe) list = list.filter(p => p.distance <= (distRange || 0.5)).sort((a,b) => (a.distance || 0) - (b.distance || 0));
+    }
+    return list;
+  }, [places, selectedCategory, userLoc, isNearMe, distRange]);
+
+  const mapMarkers = useMemo(() => 
+    displayPlaces.map(p => ({ 
+      id: p.id, 
+      name: p.name, 
+      lat: p.latitude, 
+      lng: p.longitude, 
+      price: p.price_label, 
+      category: p.category, 
+      address: p.address 
+    })), [displayPlaces]);
   const categories = ["ラーメン", "カフェ・ベーカリー", "寿司・和食", "ファ스트フード", "居酒屋・バー"];
 
   return (
@@ -145,14 +176,8 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
                 currentUser={user} 
                 isLiked={!!likedPlaces[place.id]} 
                 isBookmarked={!!bookmarkedPlaces[place.id]}
-                onLike={() => setLikedPlaces(p => ({ ...p, [place.id]: !p[place.id] }))}
-                onBookmark={async () => {
-                    if (!user) return;
-                    const isB = bookmarkedPlaces[place.id];
-                    setBookmarkedPlaces(p => ({ ...p, [place.id]: !isB }));
-                    if (isB) await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('place_id', place.id);
-                    else await supabase.from('bookmarks').insert({ user_id: user.id, place_id: place.id });
-                }}
+                onLike={() => toggleLike(place.id)}
+                onBookmark={() => toggleBookmark(place.id)}
               />
             ))}
             
@@ -176,73 +201,4 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
   );
 }
 
-function PlaceFeedCard({ place, currentUser, isLiked, isBookmarked, onLike, onBookmark }: any) {
-  const [comments, setComments] = useState<any[]>([]);
-  const [commentText, setCommentText] = useState("");
-  const [author, setAuthor] = useState<any>(null);
-  const supabase = createClient();
 
-  useEffect(() => {
-    const load = async () => {
-        if (place.user_id) {
-            const { data: p } = await supabase.from('profiles').select('*').eq('id', place.user_id).single();
-            setAuthor(p);
-        }
-        const { data: c } = await supabase.from('comments').select('*, profiles(nickname, level)').eq('place_id', place.id).limit(3);
-        setComments(c || []);
-    };
-    load();
-  }, [place.id, place.user_id, supabase]);
-
-  const images = place.place_images?.length > 0 ? place.place_images.map((i: any) => i.image_url) : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800"];
-  const [emblaRef] = useEmblaCarousel({ loop: true });
-
-  return (
-    <div className="bg-white pb-6">
-      <div className="flex items-center px-4 py-3 gap-3">
-        <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden relative">
-            <Image 
-                src={author?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
-                alt="avatar" fill className="object-cover" 
-            />
-        </div>
-        <div className="flex flex-col flex-1">
-          <div className="flex items-center gap-1.5"><span className="font-bold text-sm">{author?.nickname || "OCM Voyager"}</span><span className="text-[9px] bg-gray-100 px-1 rounded font-black text-gray-400">Lv.{author?.level || 1}</span></div>
-          <div className="flex items-center text-[10px] text-gray-400 gap-1 italic"><MapPin className="h-2 w-2" /> {place.address?.slice(0, 15)}...</div>
-        </div>
-        <Badge variant="outline" className="text-[10px] font-black bg-gray-50 uppercase">{place.price_label}</Badge>
-      </div>
-
-      <div className="relative h-[400px] bg-gray-50 overflow-hidden" ref={emblaRef}>
-        <div className="flex h-full">
-            {images.map((src: string, i: number) => (
-                <div key={i} className="flex-[0_0_100%] h-full relative">
-                    <Image 
-                        src={src} alt={place.name} fill 
-                        className="object-cover" 
-                        sizes="(max-width: 768px) 100vw, 420px"
-                        priority={i === 0} 
-                    />
-                </div>
-            ))}
-        </div>
-      </div>
-
-      <div className="px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-5">
-          <Heart onClick={onLike} className={`h-6 w-6 cursor-pointer ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
-          <MessageCircle className="h-6 w-6" />
-          <Share2 className="h-6 w-6" />
-        </div>
-        <Bookmark onClick={onBookmark} className={`h-6 w-6 cursor-pointer ${isBookmarked ? "fill-gray-900 text-gray-900" : ""}`} />
-      </div>
-
-      <div className="px-4 space-y-2">
-        <p className="text-[13px] leading-relaxed"><span className="font-bold mr-2 text-gray-900">{author?.nickname || "OCM"}</span>원코인맵 도쿄 가성비 {place.category} 탐험 성공! {place.name} 추천합니다. ✨</p>
-        {comments.map((c, i) => (
-            <div key={i} className="text-[12px] flex gap-2"><span className="font-bold">{c.profiles?.nickname}</span><span className="text-gray-500 truncate">{c.content}</span></div>
-        ))}
-      </div>
-    </div>
-  );
-}

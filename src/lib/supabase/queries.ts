@@ -4,7 +4,12 @@ export async function getPlaces(from = 0, to = 9) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("places")
-    .select("*, place_images(image_url)")
+    .select(`
+      *,
+      place_images(image_url),
+      profiles(id, nickname, level, avatar_url),
+      comments(id, content, created_at, profiles(nickname, level))
+    `)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .range(from, to);
