@@ -26,11 +26,14 @@ export function SinglePlaceMap({ lat, lng, name }: SinglePlaceMapProps) {
           mapId="DEMO_MAP_ID"
         >
           <AdvancedMarker position={center} title={name}>
-            <Pin 
-              background={"#f97316"}
-              borderColor={"#b45309"}
-              glyphColor={"#fff"}
-            />
+            <div style={{
+              width: '14px',
+              height: '14px',
+              backgroundColor: '#f97316',
+              borderRadius: '50%',
+              border: '2px solid white',
+              boxShadow: '0 0 6px rgba(0,0,0,0.4)'
+            }} />
           </AdvancedMarker>
         </Map>
       </div>

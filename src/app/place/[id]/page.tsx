@@ -143,8 +143,8 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
                 <Tag className="h-4 w-4 text-gray-400" /> 특징 탐색
             </h3>
             <div className="flex flex-wrap gap-1.5">
-                {tags.length > 0 ? tags.map((t: any) => (
-                    <span key={t.id} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags?.name || "태그"}</span>
+                {tags && tags.length > 0 ? tags.map((t: any, idx: number) => (
+                    <span key={idx} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags?.name || "태그"}</span>
                 )) : <span className="text-[11px] text-gray-400">등록된 태그가 없습니다.</span>}
             </div>
         </div>
