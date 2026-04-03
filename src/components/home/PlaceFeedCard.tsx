@@ -5,6 +5,7 @@ import Image from "next/image";
 import { MapPin, Heart, Share2, Bookmark, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import useEmblaCarousel from "embla-carousel-react";
+import Link from "next/link";
 
 interface PlaceFeedCardProps {
   place: any;
@@ -47,7 +48,7 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
         <Badge variant="outline" className="text-[10px] font-black bg-gray-50 uppercase">{place.price_label}</Badge>
       </div>
 
-      <div className="relative h-[400px] bg-gray-50 overflow-hidden" ref={emblaRef}>
+      <Link href={`/place/${place.id}`} className="block relative h-[400px] bg-gray-50 overflow-hidden" ref={emblaRef}>
         <div className="flex h-full">
             {images.map((src: string, i: number) => (
                 <div key={i} className="flex-[0_0_100%] h-full relative">
@@ -60,7 +61,7 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
                 </div>
             ))}
         </div>
-      </div>
+      </Link>
 
       <div className="px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-5">
@@ -77,7 +78,10 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
       <div className="px-4 space-y-2 pb-2">
         <p className="text-[13px] leading-relaxed">
           <span className="font-bold mr-2 text-gray-900">{author?.display_name || "OCM"}</span>
-          원코인맵 도쿄 가성비 {place.category} 탐험 성공! {place.name} 추천합니다. ✨
+          원코인맵 도쿄 가성비 {place.category} 탐험 성공! 
+          <Link href={`/place/${place.id}`} className="font-bold text-orange-600 hover:underline ml-1">
+            {place.name}
+          </Link> 추천합니다. ✨
         </p>
       </div>
     </div>
