@@ -37,8 +37,8 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
         </div>
         <div className="flex flex-col flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="font-bold text-sm">{author?.nickname || "OCM Voyager"}</span>
-            <span className="text-[9px] bg-gray-100 px-1 rounded font-black text-gray-400">Lv.{author?.level || 1}</span>
+            <span className="font-bold text-sm">{author?.display_name || "OCM Voyager"}</span>
+            <span className="text-[9px] bg-gray-100 px-1 rounded font-black text-gray-400">Lv.1</span>
           </div>
           <div className="flex items-center text-[10px] text-gray-400 gap-1 italic">
             <MapPin className="h-2 w-2" /> {place.address?.slice(0, 15)}...
@@ -77,12 +77,12 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
 
       <div className="px-4 space-y-2">
         <p className="text-[13px] leading-relaxed">
-          <span className="font-bold mr-2 text-gray-900">{author?.nickname || "OCM"}</span>
+          <span className="font-bold mr-2 text-gray-900">{author?.display_name || "OCM"}</span>
           원코인맵 도쿄 가성비 {place.category} 탐험 성공! {place.name} 추천합니다. ✨
         </p>
         {comments.slice(0, 3).map((c: any, i: number) => (
             <div key={i} className="text-[12px] flex gap-2">
-              <span className="font-bold">{c.profiles?.nickname}</span>
+              <span className="font-bold">{c.profiles?.display_name || "Voyager"}</span>
               <span className="text-gray-500 truncate">{c.content}</span>
             </div>
         ))}

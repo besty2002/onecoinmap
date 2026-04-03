@@ -7,8 +7,8 @@ export async function getPlaces(from = 0, to = 9) {
     .select(`
       *,
       place_images(image_url),
-      profiles(id, nickname, level, avatar_url),
-      comments(id, content, created_at, profiles(nickname, level))
+      profiles(id, display_name, avatar_url),
+      comments(id, content, created_at, profiles(display_name))
     `)
     .eq("status", "active")
     .order("created_at", { ascending: false })
