@@ -3,144 +3,152 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Clock, Info, Heart, Share2, Tag, ChevronLeft, Navigation } from 'lucide-react';
+import { MapPin, Heart, Share2, Bookmark, ChevronLeft, MoreHorizontal, MessageCircle, Navigation, Info, Tag } from 'lucide-react';
 import { getPlaceById } from '@/lib/supabase/queries';
+import { createClient } from '@/lib/supabase/server';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import { CommentSection } from '@/components/comments/CommentSection';
+
+// 🚀 지도 컴포넌트 지연 로딩
+const SinglePlaceMap = dynamic(() => import('@/components/map/SinglePlaceMap').then(mod => mod.SinglePlaceMap), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>
+});
 
 interface PlacePageProps {
   params: Promise<{ id: string }>;
 }
 
-// SEO를 위한 동적 Metadata 생성
 export async function generateMetadata({ params }: PlacePageProps): Promise<Metadata> {
   const { id } = await params;
   const place = await getPlaceById(id);
-  
   if (!place) return { title: 'Not Found' };
-
-  const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800&auto=format&fit=crop";
-
+  const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800";
   return {
-    title: `${place.name} - ${place.price_label} | ワンコインマップ`,
+    title: `${place.name} | ワンコインマップ`,
     description: place.description,
-    openGraph: {
-      images: [imageUrl],
-    }
+    openGraph: { images: [imageUrl] }
   };
 }
 
 export default async function PlaceDetail({ params }: PlacePageProps) {
   const { id } = await params;
   const place = await getPlaceById(id);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!place) {
-    return <div className="p-8 text-center text-muted-foreground mt-20">お店の 정보를 취득할 수 없었습니다.</div>;
+    return <div className="p-8 text-center text-muted-foreground mt-20">가게 정보를 찾을 수 없습니다.</div>;
   }
 
-  const imageUrl = place.place_images?.[0]?.image_url || "https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800&auto=format&fit=crop";
-  const authorName = place.profiles?.display_name || "名無しユーザー";
-  const tags = place.tags || [];
+  const imageUrls = place.place_images?.length > 0 
+    ? place.place_images.map((img: any) => img.image_url)
+    : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800"];
+  
+  const author = place.profiles;
 
   return (
-    <div className="flex flex-col h-full bg-background md:max-w-3xl md:mx-auto w-full">
-      {/* Mobile Header / Desktop Back Button */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur border-b px-4 h-14 flex items-center md:hidden">
+    <div className="flex flex-col h-full bg-white md:max-w-xl md:mx-auto w-full min-h-screen pb-24">
+      {/* 🚀 Header */}
+      <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b px-4 h-14 flex items-center justify-between">
         <Link href="/">
           <Button variant="ghost" size="icon" className="-ml-2">
             <ChevronLeft className="h-6 w-6" />
           </Button>
         </Link>
-        <span className="font-semibold text-lg ml-2 truncate">{place.name}</span>
+        <span className="font-bold text-sm tracking-tight truncate">탐험 상세</span>
+        <Button variant="ghost" size="icon" className="-mr-2">
+          <MoreHorizontal className="h-5 w-5" />
+        </Button>
       </div>
       
-      {/* Hero Image */}
-      <div className="relative w-full aspect-[4/3] md:aspect-[16/6] bg-muted">
-        <img 
-          src={imageUrl} 
-          alt={place.name} 
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute top-4 left-4 hidden md:block z-10">
-          <Link href="/">
-            <Button variant="secondary" size="icon" className="rounded-full shadow-md bg-white/80 hover:bg-white text-black">
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          </Link>
+      {/* 🚀 User Info Header (IG Style) */}
+      <div className="flex items-center px-4 py-3 gap-3">
+        <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden relative border">
+             <Image src={author?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} alt="p" fill className="object-cover" />
+        </div>
+        <div className="flex flex-col">
+            <span className="font-bold text-[13px] leading-tight">{author?.display_name || "OCM Voyager"}</span>
+            <span className="text-[10px] text-gray-400 font-medium">{place.city || "도쿄 탐험중"}</span>
         </div>
       </div>
 
-      <div className="p-5 flex-1 space-y-6">
-        <div className="space-y-3">
-          <div className="flex justify-between items-start">
-            <h1 className="text-2xl font-bold leading-tight">{place.name}</h1>
-            <div className="flex gap-2 shrink-0 ml-4">
-              <Button variant="outline" size="icon" className="rounded-full">
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full border-primary/20 hover:bg-primary/5 text-primary">
-                <Heart className="h-4 w-4" />
-              </Button>
+      {/* 🚀 Image Media (Carousel Placeholder Layout) */}
+      <div className="relative w-full aspect-square bg-gray-50 flex overflow-x-auto snap-x snap-mandatory no-scrollbar">
+        {imageUrls.map((url: string, idx: number) => (
+            <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative">
+                <Image src={url} alt={place.name} fill className="object-cover" priority={idx === 0} />
             </div>
-          </div>
-          
-          <div className="flex items-center gap-2 flex-wrap text-sm text-muted-foreground">
-            <Badge variant="default" className="text-sm px-2 py-0.5 bg-primary/10 text-primary border-none">
-              {place.price_label}
-            </Badge>
-            <span className="bg-secondary px-2 py-0.5 rounded text-secondary-foreground text-xs font-medium">
-              {place.category}
-            </span>
-            <span>⭐ {place.rating}</span>
-            <span>❤️ {place.saves} お気に入り</span>
-          </div>
+        ))}
+      </div>
+
+      {/* 🚀 Action Buttons */}
+      <div className="px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-5">
+            <Heart className="h-6 w-6 cursor-pointer hover:scale-110 active:scale-95 transition-transform" />
+            <MessageCircle className="h-6 w-6 cursor-pointer" />
+            <Share2 className="h-6 w-6 cursor-pointer" />
         </div>
+        <Bookmark className="h-6 w-6 cursor-pointer" />
+      </div>
 
-        <Separator />
-
-        <div className="space-y-4">
-          <div className="flex bg-muted/50 p-4 rounded-xl items-center justify-between">
-            <div className="flex gap-3 items-start flex-1 text-sm">
-              <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-foreground">{place.address}</p>
-                <p className="text-muted-foreground text-xs mt-1">Google Maps で開く</p>
-              </div>
+      {/* 🚀 Post Content (Caption) */}
+      <div className="px-4 space-y-4">
+        <div className="space-y-1">
+            <p className="text-[13px] leading-relaxed">
+                <span className="font-bold mr-2">{author?.display_name || "OCM"}</span>
+                {place.description}
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+                <Badge className="bg-orange-500 text-white border-none font-bold text-[10px]">{place.price_label}</Badge>
+                <Badge variant="outline" className="text-gray-400 font-black text-[10px] border-gray-200">{place.category}</Badge>
             </div>
-            <Button variant="secondary" size="sm" className="ml-2 whitespace-nowrap">
-              <Navigation className="h-4 w-4 mr-1" />
-              案内
-            </Button>
-          </div>
-          <div className="w-full h-40 bg-muted rounded-xl flex items-center justify-center border border-dashed border-muted-foreground/30">
-            <p className="text-muted-foreground text-sm font-medium">地図エリア</p>
-          </div>
         </div>
 
-        <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2 text-base">
-            <Info className="h-4 w-4 text-muted-foreground" /> 
-            お店について
-          </h3>
-          <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
-            {place.description}
-          </p>
+        <Separator className="bg-gray-100" />
+
+        {/* 🚀 Location & Map Section */}
+        <div className="space-y-4 pb-4">
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex gap-3">
+                    <MapPin className="h-5 w-5 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                        <p className="font-bold text-[13px] text-gray-900">{place.name}</p>
+                        <p className="text-gray-400 text-[11px] mt-0.5">{place.address}</p>
+                    </div>
+                </div>
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} target="_blank" rel="noopener">
+                    <Button variant="secondary" size="sm" className="h-8 rounded-full text-[11px] font-bold bg-gray-100">
+                        <Navigation className="h-3 w-3 mr-1" /> 길찾기
+                    </Button>
+                </a>
+            </div>
+
+            <div className="w-full h-48 rounded-2xl overflow-hidden shadow-inner">
+                <SinglePlaceMap lat={place.latitude} lng={place.longitude} name={place.name} />
+            </div>
         </div>
 
-        <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2 text-base">
-            <Tag className="h-4 w-4 text-muted-foreground" /> 
-            特徴・タグ
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag: any) => (
-              <Badge key={tag.id || tag.name} variant="outline" className="bg-background">#{tag.name}</Badge>
-            ))}
-            {tags.length === 0 && <span className="text-xs text-muted-foreground">登録されたタグはありません</span>}
-          </div>
+        <Separator className="bg-gray-100" />
+
+        {/* 🚀 Tag Section */}
+        <div className="space-y-2">
+            <h3 className="text-sm font-bold flex items-center gap-2">
+                <Tag className="h-4 w-4 text-gray-400" /> 특징 탐색
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+                {place.place_tags?.map((t: any) => (
+                    <span key={t.id} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags.name}</span>
+                )) || <span className="text-[11px] text-gray-400">등록된 태그가 없습니다.</span>}
+            </div>
         </div>
-        
-        <div className="text-xs text-muted-foreground text-right pt-6 pb-20 md:pb-6">
-          <p>登録者: {authorName}</p>
-          <p>更新: {new Date(place.created_at).toLocaleDateString('ja-JP')}</p>
+
+        <Separator className="bg-gray-100" />
+
+        {/* 🚀 Comment Section */}
+        <div id="comments" className="pb-10">
+            <CommentSection placeId={id} currentUser={user} />
         </div>
       </div>
     </div>

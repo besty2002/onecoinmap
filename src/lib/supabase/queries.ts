@@ -26,8 +26,9 @@ export async function getPlaceById(id: string) {
     .from("places")
     .select(`
       *,
-      profiles (display_name),
-      place_images (image_url)
+      profiles (id, display_name, avatar_url),
+      place_images (image_url),
+      place_tags (tags (id, name))
     `)
     .eq("id", id)
     .single();
