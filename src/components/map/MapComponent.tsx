@@ -77,21 +77,36 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
+      case "お弁当":
       case "도시락": return <Box className="w-3 h-3" />;
+      case "ラーメン・麺":
       case "면요리": return <Soup className="w-3 h-3" />;
+      case "牛丼・カレー":
+      case "카레": return <CircleEllipsis className="w-3 h-3" />;
+      case "定食・和食":
       case "일식": return <Utensils className="w-3 h-3" />;
+      case "中華料理":
       case "중식": return <UtensilsCrossed className="w-3 h-3" />;
+      case "韓国料理":
       case "한식": return <Flame className="w-3 h-3" />;
+      case "洋食・パスタ":
       case "양식": return <Croissant className="w-3 h-3" />;
+      case "バーガー":
       case "버거": return <CircleEllipsis className="w-3 h-3" />;
+      case "チキン":
       case "치킨": return <Drumstick className="w-3 h-3" />;
+      case "ピザ":
       case "피자": return <Pizza className="w-3 h-3" />;
+      case "焼肉・丼":
       case "고기/구이": return <Beef className="w-3 h-3" />;
-      case "찜/탕": return <Soup className="w-3 h-3" />;
+      case "サラダ":
       case "샐러드": return <Leaf className="w-3 h-3" />;
+      case "カフェ":
       case "카페": return <Coffee className="w-3 h-3" />;
+      case "アジアン":
       case "아시안": return <Globe className="w-3 h-3" />;
-      case "한식뷔페": return <LayoutGrid className="w-3 h-3" />;
+      case "惣菜・パン":
+      case "반찬": return <LayoutGrid className="w-3 h-3" />;
       default: return <Utensils className="w-3 h-3" />;
     }
   };
@@ -99,8 +114,8 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
   if (!apiKey) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center h-full w-full bg-muted/30">
-        <p className="text-muted-foreground mb-4">Google Maps API キーが設定されていません</p>
-        <p className="text-sm text-muted-foreground">.env.local ファイルを確認してください</p>
+        <p className="text-muted-foreground mb-4">Google Maps API キー가 설정되어 있지 않습니다.</p>
+        <p className="text-sm text-muted-foreground">.env.local 파일 확인 부탁드립니다.</p>
       </div>
     );
   }
@@ -123,33 +138,40 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
             </AdvancedMarker>
           )}
 
-          {markersWithCoords.map((place) => (
-            <AdvancedMarker
-              key={place.id}
-              position={{ lat: place.lat!, lng: place.lng! }}
-              onClick={() => handleMarkerClick(place)}
-            >
-              <div className={`relative flex items-center gap-1.5 px-2 py-1 rounded-full border-2 shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 ${
-                selectedPlace?.id === place.id 
-                  ? "bg-black border-black text-white z-50 translate-y-[-4px]" 
-                  : place.source_type === 'admin'
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : "bg-white border-orange-500 text-gray-900"
-              }`}>
-                <div className={`${selectedPlace?.id === place.id ? "text-orange-400" : place.source_type === 'admin' ? "text-white" : "text-orange-500"}`}>
-                  {getCategoryIcon(place.category)}
+          {markersWithCoords.map((place) => {
+            const hasPrice = place.price && place.price !== "null" && place.price !== "0" && place.price !== "";
+            const displayPrice = hasPrice 
+              ? (place.price.includes("円") ? place.price.replace("円", "") : place.price)
+              : "情報なし";
+
+            return (
+              <AdvancedMarker
+                key={place.id}
+                position={{ lat: place.lat!, lng: place.lng! }}
+                onClick={() => handleMarkerClick(place)}
+              >
+                <div className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border-2 shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 ${
+                  selectedPlace?.id === place.id 
+                    ? "bg-black border-black text-white z-50 translate-y-[-4px]" 
+                    : place.source_type === 'admin'
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "bg-white border-orange-500 text-gray-900"
+                }`}>
+                  <div className={`${selectedPlace?.id === place.id ? "text-orange-400" : place.source_type === 'admin' ? "text-white" : "text-orange-500"}`}>
+                    {getCategoryIcon(place.category)}
+                  </div>
+                  <span className={`text-[11px] font-black whitespace-nowrap tracking-tighter ${!hasPrice ? "text-[9px] opacity-70" : ""}`}>
+                    {displayPrice}{hasPrice ? "円" : ""}
+                  </span>
+                  
+                  {/* 🚀 말풍선 꼬리 */}
+                  <div className={`absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] ${
+                    selectedPlace?.id === place.id ? "border-t-black" : place.source_type === 'admin' ? "border-t-blue-600" : "border-t-orange-500"
+                  }`} />
                 </div>
-                <span className="text-[11px] font-black whitespace-nowrap tracking-tighter">
-                  {place.price.includes("円") ? place.price.replace("円", "") : place.price}원
-                </span>
-                
-                {/* 🚀 말풍선 꼬리 */}
-                <div className={`absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] ${
-                  selectedPlace?.id === place.id ? "border-t-black" : place.source_type === 'admin' ? "border-t-blue-600" : "border-t-orange-500"
-                }`} />
-              </div>
-            </AdvancedMarker>
-          ))}
+              </AdvancedMarker>
+            );
+          })}
 
           {selectedPlace && selectedPlace.lat !== undefined && selectedPlace.lng !== undefined && (
             <InfoWindow

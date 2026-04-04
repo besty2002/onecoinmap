@@ -134,21 +134,21 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
     })), [displayPlaces]);
   
   const categories = [
-    { name: "도시락", icon: <Box className="h-5 w-5" /> },
-    { name: "면요리", icon: <Soup className="h-5 w-5" /> },
-    { name: "일식", icon: <Utensils className="h-5 w-5" /> },
-    { name: "중식", icon: <UtensilsCrossed className="h-5 w-5" /> },
-    { name: "한식", icon: <Flame className="h-5 w-5" /> },
-    { name: "양식", icon: <Croissant className="h-5 w-5" /> },
-    { name: "버거", icon: <CircleEllipsis className="h-5 w-5" /> },
-    { name: "치킨", icon: <Drumstick className="h-5 w-5" /> },
-    { name: "피자", icon: <Pizza className="h-5 w-5" /> },
-    { name: "고기/구이", icon: <Beef className="h-5 w-5" /> },
-    { name: "찜/탕", icon: <Soup className="h-5 w-5" /> },
-    { name: "샐러드", icon: <Leaf className="h-5 w-5" /> },
-    { name: "카페", icon: <Coffee className="h-5 w-5" /> },
-    { name: "아시안", icon: <Globe className="h-5 w-5" /> },
-    { name: "한식뷔페", icon: <LayoutGrid className="h-5 w-5" /> },
+    { name: "お弁当", icon: <Box className="h-5 w-5" />, recommended: true },
+    { name: "ラーメン・麺", icon: <Soup className="h-5 w-5" /> },
+    { name: "牛丼・カレー", icon: <CircleEllipsis className="h-5 w-5" /> },
+    { name: "定食・和食", icon: <Utensils className="h-5 w-5" /> },
+    { name: "中華料理", icon: <UtensilsCrossed className="h-5 w-5" /> },
+    { name: "韓国料理", icon: <Flame className="h-5 w-5" /> },
+    { name: "洋食・パスタ", icon: <Croissant className="h-5 w-5" /> },
+    { name: "バーガー", icon: <CircleEllipsis className="h-5 w-5" /> },
+    { name: "チキン", icon: <Drumstick className="h-5 w-5" /> },
+    { name: "ピザ", icon: <Pizza className="h-5 w-5" /> },
+    { name: "焼肉・丼", icon: <Beef className="h-5 w-5" /> },
+    { name: "サラダ", icon: <Leaf className="h-5 w-5" /> },
+    { name: "カフェ", icon: <Coffee className="h-5 w-5" /> },
+    { name: "アジアン", icon: <Globe className="h-5 w-5" /> },
+    { name: "惣菜・パン", icon: <LayoutGrid className="h-5 w-5" /> },
   ];
 
   return (
@@ -178,21 +178,26 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
             </div>
           )}
 
-          <div className="flex overflow-x-auto p-4 gap-4 border-b no-scrollbar bg-white scroll-smooth">
+          <div className="flex overflow-x-auto p-4 gap-5 border-b no-scrollbar bg-white scroll-smooth items-start">
             {categories.map(cat => (
               <button 
                 key={cat.name} 
                 onClick={() => setSelectedCategory(selectedCategory === cat.name ? null : cat.name)} 
-                className="flex flex-col items-center gap-1.5 shrink-0"
+                className="flex flex-col items-center gap-1.5 shrink-0 relative pt-1"
               >
+                {cat.recommended && (
+                   <div className="absolute -top-1 z-10 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm animate-bounce whitespace-nowrap">
+                     おすすめ
+                   </div>
+                )}
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 border-2 ${
                   selectedCategory === cat.name 
                     ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 scale-110" 
-                    : "bg-gray-50 border-gray-100 text-gray-400"
+                    : "bg-gray-50 border-gray-100 text-gray-400 hover:border-orange-200"
                 }`}>
                   {cat.icon}
                 </div>
-                <span className={`text-[10px] font-black tracking-tighter ${selectedCategory === cat.name ? "text-orange-600" : "text-gray-400"}`}>
+                <span className={`text-[10px] font-black whitespace-nowrap tracking-tighter ${selectedCategory === cat.name ? "text-orange-600" : "text-gray-400"}`}>
                   {cat.name}
                 </span>
               </button>

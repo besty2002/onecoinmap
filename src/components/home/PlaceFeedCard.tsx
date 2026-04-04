@@ -21,9 +21,29 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
   const author = place.profiles;
   const comments = place.comments || [];
   
+  const getCategoryFallback = (cat: string) => {
+    switch (cat) {
+      case "お弁当":
+      case "도시락": return "https://images.unsplash.com/photo-1547584370-2cc98b8b8dc8?q=80&w=500";
+      case "ラーメン・麺":
+      case "면요리": return "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=500";
+      case "牛丼・カレー":
+      case "카레": return "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500";
+      case "定食・和食":
+      case "일식": return "https://images.unsplash.com/photo-1583202683969-9134ba972e39?q=80&w=500";
+      case "中華料理":
+      case "중식": return "https://images.unsplash.com/photo-1525755662778-989d0524087e?q=80&w=500";
+      case "韓国料理":
+      case "한식": return "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=500";
+      case "洋食・パスタ":
+      case "양식": return "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=500";
+      default: return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500";
+    }
+  };
+
   const images = place.place_images?.length > 0 
     ? place.place_images.map((i: any) => i.image_url) 
-    : ["https://images.unsplash.com/photo-1542284992-cb31a89c4568?q=80&w=800"];
+    : [getCategoryFallback(place.category)];
     
   const [emblaRef] = useEmblaCarousel({ loop: true });
 
