@@ -7,14 +7,8 @@ import { MapPin, Heart, Share2, Bookmark, ChevronLeft, MoreHorizontal, MessageCi
 import { getPlaceById } from '@/lib/supabase/queries';
 import { createClient } from '@/lib/supabase/server';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
+import { RenderMap } from '@/components/map/RenderMap';
 import { CommentSection } from '@/components/comments/CommentSection';
-
-// 🚀 지도 컴포넌트 지연 로딩
-const SinglePlaceMap = dynamic(() => import('@/components/map/SinglePlaceMap').then(mod => mod.SinglePlaceMap), {
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>
-});
 
 interface PlacePageProps {
   params: Promise<{ id: string }>;
@@ -131,7 +125,7 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
             </div>
 
             <div className="w-full h-48 rounded-2xl overflow-hidden shadow-inner">
-                <SinglePlaceMap lat={place.latitude} lng={place.longitude} name={place.name} />
+                <RenderMap lat={place.latitude} lng={place.longitude} name={place.name} />
             </div>
         </div>
 

@@ -4,9 +4,6 @@ const nextConfig: any = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
