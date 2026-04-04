@@ -5,7 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Grid, Bookmark, Settings, Award, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
-export default async function MyProfilePage() {
+export default async function MyProfilePage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams;
+  const defaultTab = tab || "posts";
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) { redirect("/login"); }
@@ -72,7 +75,7 @@ export default async function MyProfilePage() {
       </div>
 
       {/* Tabs Layout */}
-      <Tabs defaultValue="posts" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="w-full bg-transparent border-t border-gray-100 rounded-none h-12 p-0">
           <TabsTrigger value="posts" className="flex-1 h-full data-[state=active]:border-t-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none"><Grid className="h-5 w-5" /></TabsTrigger>
           <TabsTrigger value="saved" className="flex-1 h-full data-[state=active]:border-t-2 data-[state=active]:border-gray-900 data-[state=active]:bg-transparent rounded-none"><Bookmark className="h-5 w-5" /></TabsTrigger>

@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { Map, Coffee, User } from "lucide-react";
+import { Map, Heart, User } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="w-full border-t bg-background pb-safe">
       <div className="flex justify-around items-center h-16 max-w-md mx-auto sm:hidden">
-        <Link href="/" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary">
+        <Link href="/" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary transition-colors">
           <Map className="w-6 h-6 mb-1" />
-          <span className="text-[10px]">マップ</span>
+          <span className="text-[10px] font-bold">マップ</span>
         </Link>
-        <Link href="/mypage" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary">
-          <Coffee className="w-6 h-6 mb-1" />
-          <span className="text-[10px]">お気に入り</span>
+        <Link href="/profile?tab=saved" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary transition-colors">
+          <Heart className="w-6 h-6 mb-1" />
+          <span className="text-[10px] font-bold">お気に入り</span>
         </Link>
-        <Link href="/mypage" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary">
+        <Link href="/profile" className="flex flex-col items-center justify-center w-full text-muted-foreground hover:text-primary transition-colors">
           <User className="w-6 h-6 mb-1" />
-          <span className="text-[10px]">マイページ</span>
+          <span className="text-[10px] font-bold">マイページ</span>
         </Link>
       </div>
 

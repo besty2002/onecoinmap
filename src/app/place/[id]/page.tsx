@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { RenderMap } from '@/components/map/RenderMap';
 import { CommentSection } from '@/components/comments/CommentSection';
+import { PlaceImageCarousel } from '@/components/places/PlaceImageCarousel';
 
 interface PlacePageProps {
   params: Promise<{ id: string }>;
@@ -61,26 +62,20 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
       
       {/* 🚀 User Info Header (IG Style) */}
       <div className="flex items-center px-4 py-3 gap-3">
-        <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden relative border">
+        <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden relative border shadow-sm">
            <Image 
               src={(author?.avatar_url) || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"} 
               alt="profile" fill className="object-cover" 
            />
         </div>
         <div className="flex flex-col">
-            <span className="font-bold text-[13px] leading-tight">{author?.display_name || "OCM Voyager"}</span>
-            <span className="text-[10px] text-gray-400 font-medium">{place.city || "東京を探索中"}</span>
+            <span className="font-black text-[14px] leading-tight text-gray-900">{author?.display_name || "OCM Voyager"}</span>
+            <span className="text-[11px] text-gray-400 font-bold tracking-tight italic uppercase">{place.city || "TOKYO"} 探索中</span>
         </div>
       </div>
 
-      {/* 🚀 Image Media (Carousel Placeholder Layout) */}
-      <div className="relative w-full aspect-square bg-gray-50 flex overflow-x-auto snap-x snap-mandatory no-scrollbar">
-        {imageUrls.map((url: string, idx: number) => (
-            <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative">
-                <Image src={url} alt={place.name} fill className="object-cover" priority={idx === 0} />
-            </div>
-        ))}
-      </div>
+      {/* 🚀 Image Media (Carousel Container) */}
+      <PlaceImageCarousel images={imageUrls} name={place.name} />
 
       {/* 🚀 Action Buttons */}
       <div className="px-4 py-4 flex items-center justify-between">
@@ -99,9 +94,9 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
                 <span className="font-bold mr-2">{author?.display_name || "OCM"}</span>
                 {place.description}
             </p>
-            <div className="flex flex-wrap gap-2 pt-2">
-                <Badge className="bg-orange-500 text-white border-none font-bold text-[10px]">{place.price_label}</Badge>
-                <Badge variant="outline" className="text-gray-400 font-black text-[10px] border-gray-200">{place.category}</Badge>
+            <div className="flex flex-wrap gap-2 pt-2.5">
+                <Badge className="bg-orange-500 text-white border-none font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-sm">{place.price_label}</Badge>
+                <Badge variant="outline" className="text-gray-400 font-bold text-[11px] border-gray-200 px-2.5 py-0.5 rounded-full">{place.category}</Badge>
             </div>
         </div>
 
@@ -111,20 +106,27 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
         <div className="space-y-4 pb-4">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-3">
-                    <MapPin className="h-5 w-5 text-orange-500 shrink-0 mt-0.5" />
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                        <MapPin className="h-5 w-5 text-orange-500" />
+                    </div>
                     <div>
-                        <p className="font-bold text-[13px] text-gray-900">{place.name}</p>
-                        <p className="text-gray-400 text-[11px] mt-0.5">{place.address}</p>
+                        <p className="font-black text-[14px] text-gray-900 tracking-tight">{place.name}</p>
+                        <p className="text-gray-400 text-[11px] mt-0.5 font-medium leading-relaxed">{place.address}</p>
                     </div>
                 </div>
-                <a href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} target="_blank" rel="noopener">
-                    <Button variant="secondary" size="sm" className="h-8 rounded-full text-[11px] font-bold bg-gray-100">
-                        <Navigation className="h-3 w-3 mr-1" /> ルート
+                <a 
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} 
+                    target="_blank" 
+                    rel="noopener"
+                    className="shrink-0"
+                >
+                    <Button variant="secondary" size="sm" className="h-9 px-4 rounded-xl text-[11px] font-black bg-gray-900 text-white hover:bg-black transition-all shadow-lg hover:shadow-orange-200">
+                        <Navigation className="h-3.5 w-3.5 mr-1.5 fill-white" /> ルート
                     </Button>
                 </a>
             </div>
 
-            <div className="w-full h-48 rounded-2xl overflow-hidden shadow-inner">
+            <div className="w-full h-[240px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <RenderMap lat={place.latitude} lng={place.longitude} name={place.name} />
             </div>
         </div>
