@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, AdvancedMarker, InfoWindow } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
-import { Navigation } from "lucide-react";
+import { Navigation, Utensils, UtensilsCrossed, Flame, LayoutGrid, Croissant, Globe, Soup, Drumstick, Pizza, Beef, Box, Leaf, Coffee, CircleEllipsis } from "lucide-react";
 
 // 기본 도쿄/시부야 위치 (fallback)
 const DEFAULT_CENTER = { lat: 35.6580, lng: 139.7016 };
@@ -16,6 +16,7 @@ type PlaceMarker = {
   price: string;
   category: string;
   address: string;
+  source_type?: 'admin' | 'user';
 };
 
 interface MapComponentProps {
@@ -74,6 +75,27 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
     }));
   }, [places]);
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "도시락": return <Box className="w-3 h-3" />;
+      case "면요리": return <Soup className="w-3 h-3" />;
+      case "일식": return <Utensils className="w-3 h-3" />;
+      case "중식": return <UtensilsCrossed className="w-3 h-3" />;
+      case "한식": return <Flame className="w-3 h-3" />;
+      case "양식": return <Croissant className="w-3 h-3" />;
+      case "버거": return <CircleEllipsis className="w-3 h-3" />;
+      case "치킨": return <Drumstick className="w-3 h-3" />;
+      case "피자": return <Pizza className="w-3 h-3" />;
+      case "고기/구이": return <Beef className="w-3 h-3" />;
+      case "찜/탕": return <Soup className="w-3 h-3" />;
+      case "샐러드": return <Leaf className="w-3 h-3" />;
+      case "카페": return <Coffee className="w-3 h-3" />;
+      case "아시안": return <Globe className="w-3 h-3" />;
+      case "한식뷔페": return <LayoutGrid className="w-3 h-3" />;
+      default: return <Utensils className="w-3 h-3" />;
+    }
+  };
+
   if (!apiKey) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center h-full w-full bg-muted/30">
@@ -107,11 +129,25 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
               position={{ lat: place.lat!, lng: place.lng! }}
               onClick={() => handleMarkerClick(place)}
             >
-              <Pin 
-                background={selectedPlace?.id === place.id ? "#f97316" : "#fbbf24"}
-                borderColor={"#b45309"}
-                glyphColor={"#fff"}
-              />
+              <div className={`relative flex items-center gap-1.5 px-2 py-1 rounded-full border-2 shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 ${
+                selectedPlace?.id === place.id 
+                  ? "bg-black border-black text-white z-50 translate-y-[-4px]" 
+                  : place.source_type === 'admin'
+                    ? "bg-blue-600 border-blue-600 text-white"
+                    : "bg-white border-orange-500 text-gray-900"
+              }`}>
+                <div className={`${selectedPlace?.id === place.id ? "text-orange-400" : place.source_type === 'admin' ? "text-white" : "text-orange-500"}`}>
+                  {getCategoryIcon(place.category)}
+                </div>
+                <span className="text-[11px] font-black whitespace-nowrap tracking-tighter">
+                  {place.price.includes("円") ? place.price.replace("円", "") : place.price}원
+                </span>
+                
+                {/* 🚀 말풍선 꼬리 */}
+                <div className={`absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] ${
+                  selectedPlace?.id === place.id ? "border-t-black" : place.source_type === 'admin' ? "border-t-blue-600" : "border-t-orange-500"
+                }`} />
+              </div>
             </AdvancedMarker>
           ))}
 

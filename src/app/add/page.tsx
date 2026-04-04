@@ -69,9 +69,8 @@ export default function AddPlace() {
         category,
         address,
         description,
-        latitude: latLng?.lat || 35.6580, // Default to Shibuya if no location
         longitude: latLng?.lng || 139.7016, 
-        author_id: user.id
+        user_id: user.id
       }).select();
 
       if (error) {

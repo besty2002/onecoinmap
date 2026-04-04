@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useInView } from "react-intersection-observer";
-import { Search, MapPin, Home, Award, User, LocateFixed, LucideLoader2 } from "lucide-react";
+import { Search, MapPin, Home, Award, User, LocateFixed, LucideLoader2, Utensils, UtensilsCrossed, Flame, LayoutGrid, Croissant, Globe, Soup, Drumstick, Pizza, Beef, Box, Leaf, Coffee, CircleEllipsis } from "lucide-react";
 import Link from "next/link";
 import { UploadPlaceModal } from "@/components/places/UploadPlaceModal";
 import { createClient } from "@/lib/supabase/client";
@@ -52,6 +52,8 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
       .from("places")
       .select(`
         *,
+        min_price,
+        source_type,
         place_images(image_url),
         profiles(id, display_name, avatar_url)
       `)
@@ -125,11 +127,29 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
       name: p.name, 
       lat: p.latitude, 
       lng: p.longitude, 
-      price: p.price_label, 
+      price: p.min_price?.toString() || p.price_label, 
       category: p.category, 
-      address: p.address 
+      address: p.address,
+      source_type: p.source_type
     })), [displayPlaces]);
-  const categories = ["ラーメン", "カフェ・ベーカリー", "寿司・和食", "ファ스트フード", "居酒屋・バー"];
+  
+  const categories = [
+    { name: "도시락", icon: <Box className="h-5 w-5" /> },
+    { name: "면요리", icon: <Soup className="h-5 w-5" /> },
+    { name: "일식", icon: <Utensils className="h-5 w-5" /> },
+    { name: "중식", icon: <UtensilsCrossed className="h-5 w-5" /> },
+    { name: "한식", icon: <Flame className="h-5 w-5" /> },
+    { name: "양식", icon: <Croissant className="h-5 w-5" /> },
+    { name: "버거", icon: <CircleEllipsis className="h-5 w-5" /> },
+    { name: "치킨", icon: <Drumstick className="h-5 w-5" /> },
+    { name: "피자", icon: <Pizza className="h-5 w-5" /> },
+    { name: "고기/구이", icon: <Beef className="h-5 w-5" /> },
+    { name: "찜/탕", icon: <Soup className="h-5 w-5" /> },
+    { name: "샐러드", icon: <Leaf className="h-5 w-5" /> },
+    { name: "카페", icon: <Coffee className="h-5 w-5" /> },
+    { name: "아시안", icon: <Globe className="h-5 w-5" /> },
+    { name: "한식뷔페", icon: <LayoutGrid className="h-5 w-5" /> },
+  ];
 
   return (
     <div className="flex flex-col h-full w-full relative bg-white font-sans pb-20">
@@ -158,11 +178,23 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
             </div>
           )}
 
-          <div className="flex overflow-x-auto p-4 gap-3 border-b no-scrollbar bg-white">
+          <div className="flex overflow-x-auto p-4 gap-4 border-b no-scrollbar bg-white scroll-smooth">
             {categories.map(cat => (
-              <button key={cat} onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)} className="flex flex-col items-center gap-1 shrink-0">
-                <div className={`w-14 h-14 rounded-full p-[2px] ${selectedCategory === cat ? "bg-orange-500" : "bg-gray-200"}`}><div className="w-full h-full rounded-full bg-white p-0.5 flex items-center justify-center font-bold">{cat.charAt(0)}</div></div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase">{cat.slice(0,4)}</span>
+              <button 
+                key={cat.name} 
+                onClick={() => setSelectedCategory(selectedCategory === cat.name ? null : cat.name)} 
+                className="flex flex-col items-center gap-1.5 shrink-0"
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 border-2 ${
+                  selectedCategory === cat.name 
+                    ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 scale-110" 
+                    : "bg-gray-50 border-gray-100 text-gray-400"
+                }`}>
+                  {cat.icon}
+                </div>
+                <span className={`text-[10px] font-black tracking-tighter ${selectedCategory === cat.name ? "text-orange-600" : "text-gray-400"}`}>
+                  {cat.name}
+                </span>
               </button>
             ))}
           </div>
