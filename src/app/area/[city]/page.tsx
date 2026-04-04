@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
   const decodedCity = decodeURIComponent(city);
   return {
     title: `${decodedCity} 500円ランチ・ワンコイングルメ | ワンコインマップ`,
-    description: `${decodedCity}エリア의 안 맛있고 싼 500엔 런치를 확인하세요!`,
+    description: `${decodedCity}エリアのおいしくて安い500円ランチをチェックしてください！`,
   };
 }
 

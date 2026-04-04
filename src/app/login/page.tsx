@@ -32,7 +32,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-black bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent italic mb-3">
              OneCoinMap
           </h1>
-          <p className="text-gray-400 font-medium text-sm">도쿄의 500엔 행복을 기록하세요</p>
+          <p className="text-gray-400 font-medium text-sm">東京の500円の幸せ를記録しましょう</p>
         </div>
 
         {/* Login Buttons */}
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 fill="#EA4335"
               />
             </svg>
-            Google로 계속하기
+            Googleでログイン
           </Button>
           
           <div className="py-4 flex items-center gap-4 w-full">
@@ -69,7 +69,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-[11px] text-center text-gray-400 leading-relaxed px-4">
-            로그인하면 원코인맵의 <span className="underline">이용약관</span> 및 <span className="underline">개인정보처리방침</span>에 동의하게 됩니다.
+            ログインすると、ワンコインマップの <span className="underline">利用規約</span> および <span className="underline">プライバシーポリシー</span> に同意したものとみなされます。
           </p>
         </div>
       </div>

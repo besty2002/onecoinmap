@@ -24,7 +24,7 @@ export default async function RankingPage() {
           OneCoin <br />
           <span className="text-orange-500">Ranking TOP 20</span>
         </h1>
-        <p className="text-sm text-gray-500 font-medium">유저들의 좋아요와 평점으로 선정한 오늘의 인기 맛집</p>
+        <p className="text-sm text-gray-500 font-medium">ユーザーの「いいね」と評価で選ばれた本日の人気店</p>
       </div>
 
       <div className="flex-1 px-4 pb-24">
@@ -68,7 +68,7 @@ export default async function RankingPage() {
 
           {(!rankedPlaces || rankedPlaces.length === 0) && (
             <div className="py-20 text-center text-gray-400">
-               데이터를 집계 중입니다...
+               データを集計中です...
             </div>
           )}
         </div>

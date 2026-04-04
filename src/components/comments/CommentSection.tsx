@@ -64,7 +64,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
     <div className="space-y-6">
       <div className="flex items-center gap-2 px-4 py-2 border-b">
         <MessageCircle className="h-5 w-5 text-gray-700" />
-        <span className="font-bold text-sm">댓글 {comments.length}개</span>
+        <span className="font-bold text-sm">コメント {comments.length}件</span>
       </div>
 
       <div className="space-y-4 px-4 max-h-[400px] overflow-y-auto no-scrollbar">
@@ -93,7 +93,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
         })}
         {comments.length === 0 && (
           <div className="py-10 text-center text-gray-400 text-xs">
-            아직 댓글이 없습니다. 첫 댓글을 남겨보세요! ✨
+            まだコメントがありません。最初のコメントを残してみませんか？ ✨
           </div>
         )}
       </div>
@@ -110,7 +110,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
             <Input 
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="따뜻한 댓글을 남겨주세요..." 
+              placeholder="温かいコメントを残してください..." 
               className="pr-12 rounded-full bg-gray-50 border-none h-9 text-sm"
               disabled={loading}
             />
@@ -125,7 +125,7 @@ export function CommentSection({ placeId, currentUser }: CommentSectionProps) {
         </form>
       ) : (
         <div className="p-4 border-t text-center">
-            <p className="text-xs text-gray-400">댓글을 작성하려면 로그인이 필요합니다.</p>
+            <p className="text-xs text-gray-400">コメントを投稿するにはログインが必要です。</p>
         </div>
       )}
     </div>

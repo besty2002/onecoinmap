@@ -18,9 +18,9 @@ export default async function MyProfilePage() {
   const { data: savedPosts } = await supabase.from("bookmarks").select("place_id, places(*, place_images(image_url))").eq("user_id", user.id);
 
   const stats = [
-    { label: "게시물", value: myPosts?.length || 0 },
-    { label: "저장됨", value: savedPosts?.length || 0 },
-    { label: "레벨", value: profile?.level || 1 },
+    { label: "投稿", value: myPosts?.length || 0 },
+    { label: "保存済み", value: savedPosts?.length || 0 },
+    { label: "レベル", value: profile?.level || 1 },
   ];
 
   // 🚀 다음 레벨까지 필요한 XP 계산 (100단위)
@@ -57,16 +57,16 @@ export default async function MyProfilePage() {
         <div className="space-y-1.5">
             <div className="flex justify-between items-end">
                 <h2 className="font-black text-xl text-gray-900">{profile?.nickname || user.email?.split('@')[0]}</h2>
-                <span className="text-[10px] font-black text-primary uppercase italic">Next Lv.{ (profile?.level || 1) + 1} 까지 {100 - (currentLevelXp % 100)} XP</span>
+                <span className="text-[10px] font-black text-primary uppercase italic">Next Lv.{ (profile?.level || 1) + 1} まで {100 - (currentLevelXp % 100)} XP</span>
             </div>
             <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-1000" style={{ width: `${progressPercent}%` }}></div>
             </div>
-            <p className="text-sm text-gray-500 font-medium leading-relaxed">{profile?.bio || "원코인맵의 열혈 탐험가입니다! 최고의 가성비를 찾아서 🍲"}</p>
+            <p className="text-sm text-gray-500 font-medium leading-relaxed">{profile?.bio || "ワンコインマップの熱血探検家です！最高のコスパを求めて 🍲"}</p>
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Link href="/profile/edit" className="flex-1"><Button variant="secondary" className="w-full font-bold bg-gray-100 hover:bg-gray-200 border-none rounded-lg h-9 text-xs">프로필 편집</Button></Link>
+          <Link href="/profile/edit" className="flex-1"><Button variant="secondary" className="w-full font-bold bg-gray-100 hover:bg-gray-200 border-none rounded-lg h-9 text-xs">プロフィール編集</Button></Link>
           <Button variant="secondary" className="bg-gray-100 hover:bg-gray-200 border-none rounded-lg h-9 px-3"><Settings className="h-4 w-4 text-gray-500" /></Button>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default async function MyProfilePage() {
                 )) : (
                     <div className="col-span-2 py-10 text-center">
                         <Award className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-                        <p className="text-gray-400 text-sm font-medium">활동을 시작하고 첫 번째 뱃지를 획득해 보세요!</p>
+                        <p className="text-gray-400 text-sm font-medium">活動を開始して最初のバッジを獲得しましょう！</p>
                     </div>
                 )}
             </div>

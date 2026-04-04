@@ -150,7 +150,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
         <div className={`w-full md:w-[420px] bg-white overflow-y-auto z-10 transition-all duration-300 ${view === "list" ? "translate-y-0" : "translate-y-full md:translate-y-0"}`}>
           {isNearMe && (
             <div className="bg-orange-50 px-4 py-2 flex items-center justify-between border-b sticky top-0 z-30">
-              <span className="text-[10px] font-bold text-orange-700 italic">📍 내 주변 {distRange}km 모드</span>
+              <span className="text-[10px] font-bold text-orange-700 italic">📍 周辺 {distRange}km モード</span>
               <div className="flex bg-white rounded p-0.5 border border-orange-200">
                 <button onClick={() => setDistRange(0.5)} className={`px-2 py-0.5 rounded text-[10px] font-black ${distRange === 0.5 ? "bg-orange-500 text-white" : "text-gray-400"}`}>500m</button>
                 <button onClick={() => setDistRange(2.0)} className={`px-2 py-0.5 rounded text-[10px] font-black ${distRange === 2.0 ? "bg-orange-500 text-white" : "text-gray-400"}`}>2km</button>
@@ -183,7 +183,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
             {/* 🚀 무한 스크롤 트리거 & 로딩 바 */}
             <div ref={ref} className="p-10 flex justify-center">
               {loading && <LucideLoader2 className="h-6 w-6 text-primary animate-spin" />}
-              {!hasMore && displayPlaces.length > 0 && <p className="text-xs text-gray-400 font-bold">도쿄의 모든 가성비 맛집을 확인하셨습니다! 🍜</p>}
+              {!hasMore && displayPlaces.length > 0 && <p className="text-xs text-gray-400 font-bold">東京のすべてのコスパ店をチェックしました！🍜</p>}
             </div>
           </div>
         </div>

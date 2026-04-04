@@ -32,7 +32,7 @@ export function UploadPlaceModal() {
       const newFiles = Array.from(e.target.files);
       
       const compressedImages = await Promise.all(newFiles.map(async (file) => {
-        // 🚀 용량 압축 (최대 2MB)
+        // 🚀 容量圧縮 (最大 2MB)
         const options = { maxSizeMB: 2, maxWidthOrHeight: 1200, useWebWorker: true };
         const compressedFile = await imageCompression(file, options);
         return {
@@ -89,7 +89,7 @@ export function UploadPlaceModal() {
             </DialogTitle>
             {step !== "upload" && (
               <button 
-                onClick={() => setStep(step === "filter" ? "info" : "upload" /* 실제로는 제출 로직 */)} 
+                onClick={() => setStep(step === "filter" ? "info" : "upload" /* 本来は提出ロジック */)} 
                 className="text-sm font-bold text-primary"
               >
                 {step === "info" ? "シェア" : "次へ"}

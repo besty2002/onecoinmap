@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 /**
  * Next.js 16 Proxy
- * middleware.ts 가 deprecated 되고 proxy.ts 로 대체되었습니다.
+ * middleware.ts が非推奨(deprecated)となり、proxy.ts に置き換えられました。
  */
 export async function proxy(request: NextRequest) {
   return await updateSession(request)

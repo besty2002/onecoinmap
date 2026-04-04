@@ -64,7 +64,7 @@ export default async function EditProfilePage() {
         <Link href="/profile" className="p-1">
           <ChevronLeft className="h-6 w-6 text-gray-900" />
         </Link>
-        <h1 className="text-base font-black flex-1 text-center">프로필 편집</h1>
+        <h1 className="text-base font-black flex-1 text-center">プロフィール編集</h1>
         <div className="w-8"></div>
       </div>
 
@@ -80,7 +80,7 @@ export default async function EditProfilePage() {
           </div>
           <Input 
             name="avatar_url" 
-            placeholder="이미지 URL을 입력하세요" 
+            placeholder="画像URLを入力してください" 
             defaultValue={profile?.avatar_url || ""} 
             className="text-xs h-8 text-center bg-transparent border-none text-primary font-bold focus-visible:ring-0"
           />
@@ -89,7 +89,7 @@ export default async function EditProfilePage() {
         {/* Form Fields */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="nickname" className="text-xs font-bold text-gray-400">이름</Label>
+            <Label htmlFor="nickname" className="text-xs font-bold text-gray-400">名前</Label>
             <Input 
               id="nickname" 
               name="nickname" 
@@ -99,25 +99,25 @@ export default async function EditProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-xs font-bold text-gray-400">소개</Label>
+            <Label htmlFor="bio" className="text-xs font-bold text-gray-400">自己紹介</Label>
             <Textarea 
               id="bio" 
               name="bio" 
               defaultValue={profile?.bio || ""} 
               className="border-none bg-transparent border-b rounded-none px-0 py-2 focus-visible:ring-0 resize-none h-20"
-              placeholder="소개를 입력해주세요..."
+              placeholder="自己紹介を入力してください..."
             />
           </div>
         </div>
 
         <div className="pt-8 space-y-4">
           <Button type="submit" className="w-full rounded-xl h-11 font-black bg-black text-white hover:bg-black/90 transition-all">
-            저장하기
+            保存する
           </Button>
           
           <form action={signOut} className="w-full">
             <button type="submit" className="w-full text-center text-red-500 font-bold text-sm py-4 border-t hover:bg-gray-50 transition-all">
-              로그아웃
+              ログアウト
             </button>
           </form>
         </div>

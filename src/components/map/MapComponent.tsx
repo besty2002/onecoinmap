@@ -52,7 +52,7 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
     if (userLocation) {
       setCenter(userLocation);
     } else {
-      alert("현재 위치를 가져올 수 없습니다. 브라우저 설정을 확인해주세요.");
+      alert("現在地を取得できません。ブラウザの設定を確認してください。");
     }
   }, [userLocation]);
 
@@ -77,8 +77,8 @@ export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
   if (!apiKey) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center h-full w-full bg-muted/30">
-        <p className="text-muted-foreground mb-4">Google Maps API キー가 설정되어 있지 않습니다</p>
-        <p className="text-sm text-muted-foreground">.env.local 파일을 확인해주세요</p>
+        <p className="text-muted-foreground mb-4">Google Maps API キーが設定されていません</p>
+        <p className="text-sm text-muted-foreground">.env.local ファイルを確認してください</p>
       </div>
     );
   }

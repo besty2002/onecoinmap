@@ -78,10 +78,10 @@ const PlaceFeedCard = React.memo(({ place, currentUser, isLiked, isBookmarked, o
       <div className="px-4 space-y-2 pb-2">
         <p className="text-[13px] leading-relaxed">
           <span className="font-bold mr-2 text-gray-900">{author?.display_name || "OCM"}</span>
-          원코인맵 도쿄 가성비 {place.category} 탐험 성공! 
+          ワンコインマップ 東京のコスパ最強{place.category}探索成功！
           <Link href={`/place/${place.id}`} className="font-bold text-orange-600 hover:underline ml-1">
             {place.name}
-          </Link> 추천합니다. ✨
+          </Link> おすすめです。 ✨
         </p>
       </div>
     </div>

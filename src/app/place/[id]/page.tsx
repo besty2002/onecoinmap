@@ -33,7 +33,7 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!place) {
-    return <div className="p-8 text-center text-muted-foreground mt-20">가게 정보를 찾을 수 없습니다.</div>;
+    return <div className="p-8 text-center text-muted-foreground mt-20">お店の情報が見つかりません。</div>;
   }
 
   const imageUrls = (place.place_images as any[])?.length > 0 
@@ -53,7 +53,7 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
             <ChevronLeft className="h-6 w-6" />
           </Button>
         </Link>
-        <span className="font-bold text-sm tracking-tight truncate">탐험 상세</span>
+        <span className="font-bold text-sm tracking-tight truncate">詳細</span>
         <Button variant="ghost" size="icon" className="-mr-2">
           <MoreHorizontal className="h-5 w-5" />
         </Button>
@@ -69,7 +69,7 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
         </div>
         <div className="flex flex-col">
             <span className="font-bold text-[13px] leading-tight">{author?.display_name || "OCM Voyager"}</span>
-            <span className="text-[10px] text-gray-400 font-medium">{place.city || "도쿄 탐험중"}</span>
+            <span className="text-[10px] text-gray-400 font-medium">{place.city || "東京を探索中"}</span>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
                 </div>
                 <a href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} target="_blank" rel="noopener">
                     <Button variant="secondary" size="sm" className="h-8 rounded-full text-[11px] font-bold bg-gray-100">
-                        <Navigation className="h-3 w-3 mr-1" /> 길찾기
+                        <Navigation className="h-3 w-3 mr-1" /> ルート
                     </Button>
                 </a>
             </div>
@@ -134,12 +134,12 @@ export default async function PlaceDetail({ params }: PlacePageProps) {
         {/* 🚀 Tag Section */}
         <div className="space-y-2">
             <h3 className="text-sm font-bold flex items-center gap-2">
-                <Tag className="h-4 w-4 text-gray-400" /> 특징 탐색
+                <Tag className="h-4 w-4 text-gray-400" /> 店舗の特徴
             </h3>
             <div className="flex flex-wrap gap-1.5">
                 {tags && tags.length > 0 ? (tags as any[]).map((t: any, idx: number) => (
-                    <span key={idx} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags?.name || "태그"}</span>
-                )) : <span className="text-[11px] text-gray-400">등록된 태그가 없습니다.</span>}
+                    <span key={idx} className="text-xs text-blue-600 font-medium cursor-pointer hover:underline">#{t.tags?.name || "タグ"}</span>
+                )) : <span className="text-[11px] text-gray-400">登録されたタグがありません。</span>}
             </div>
         </div>
 
