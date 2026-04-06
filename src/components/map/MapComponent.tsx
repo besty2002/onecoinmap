@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap, MapCameraChangedEvent, MapCameraProps } from "@vis.gl/react-google-maps";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
 import { Navigation, Utensils, UtensilsCrossed, Flame, LayoutGrid, Croissant, Globe, Soup, Drumstick, Pizza, Beef, Box, Leaf, Coffee, CircleEllipsis } from "lucide-react";
 
@@ -60,21 +60,11 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-function InnerMap({ places, onMarkerClick }: MapComponentProps) {
+// 🚀 메모이제이션(React.memo)을 통하여 무의미한 리렌더 방지! iOS 위치 튕김 버그(Teleport) 핵심 해결책
+const InnerMap = React.memo(({ places, onMarkerClick }: MapComponentProps) => {
   const map = useMap();
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<PlaceMarker | null>(null);
-
-  // 🚀 Controlled Map State: 지도가 외부 요인으로 리렌더링 되어도 마지막 위치(카메라)를 기억!
-  const [cameraProps, setCameraProps] = useState<MapCameraProps>({
-    center: DEFAULT_CENTER,
-    zoom: 15,
-  });
-
-  // onCameraChanged: 사용자가 드래그나 핀치로 화면을 조작할 때, 해당 좌표를 React 상태로 최신화하여 붙잡아 둠
-  const handleCameraChange = useCallback((ev: MapCameraChangedEvent) => {
-    setCameraProps(ev.detail);
-  }, []);
 
   // 현재 위치(GPS) 획득
   useEffect(() => {
@@ -86,23 +76,27 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
             lng: position.coords.longitude,
           };
           setUserLocation(pos);
-          setCameraProps((prev) => ({ ...prev, center: pos, zoom: 15 }));
+          if (map) {
+             map.panTo(pos);
+             map.setZoom(15);
+          }
         },
         () => {
           console.log("Error getting location. Using default center.");
         }
       );
     }
-  }, [userLocation]);
+  }, [map, userLocation]);
 
   // 내비게이션 버튼 클릭 시 현재 위치로 카메라 강제 이동
   const handleGetCurrentLocation = useCallback(() => {
-    if (userLocation) {
-      setCameraProps((prev) => ({ ...prev, center: userLocation, zoom: 15 }));
+    if (userLocation && map) {
+       map.panTo(userLocation);
+       map.setZoom(15);
     } else {
       alert("現在地を取得できません。ブラウザの設定を確認してください。");
     }
-  }, [userLocation]);
+  }, [userLocation, map]);
 
   const handleMarkerClick = useCallback((place: PlaceMarker) => {
     setSelectedPlace(place);
@@ -131,11 +125,12 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
   }, [places]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    // iOS Safari 핀치 줌 튕김 방지: touch-action: none 추가!
+    <div className="relative w-full h-full overflow-hidden" style={{ touchAction: 'none' }}>
       <Map
         style={{ width: '100%', height: '100%' }}
-        {...cameraProps}
-        onCameraChanged={handleCameraChange}
+        defaultCenter={DEFAULT_CENTER}
+        defaultZoom={15}
         mapId="DEMO_MAP_ID"
         disableDefaultUI={true}
         gestureHandling="greedy"
@@ -208,7 +203,7 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
       </Button>
     </div>
   );
-}
+});
 
 export function MapComponent({ places, onMarkerClick }: MapComponentProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
