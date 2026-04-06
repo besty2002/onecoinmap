@@ -152,7 +152,7 @@ export default function HomePageClient({ initialPlaces }: { initialPlaces: any[]
   ];
 
   return (
-    <div className="flex flex-col h-full w-full relative bg-white font-sans pb-20">
+    <div className="flex flex-col h-[100dvh] w-full relative bg-white font-sans pb-20 overflow-hidden">
       <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b px-4 py-3 flex items-center justify-between">
         <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent italic">OneCoinMap</h1>
         <div className="flex gap-4 items-center">
