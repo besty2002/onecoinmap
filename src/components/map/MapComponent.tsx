@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap, MapCameraChangedEvent, MapCameraProps } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
 import { Navigation, Utensils, UtensilsCrossed, Flame, LayoutGrid, Croissant, Globe, Soup, Drumstick, Pizza, Beef, Box, Leaf, Coffee, CircleEllipsis } from "lucide-react";
 
@@ -65,7 +65,18 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<PlaceMarker | null>(null);
 
-  // 현재 위치 획득
+  // 🚀 Controlled Map State: 지도가 외부 요인으로 리렌더링 되어도 마지막 위치(카메라)를 기억!
+  const [cameraProps, setCameraProps] = useState<MapCameraProps>({
+    center: DEFAULT_CENTER,
+    zoom: 15,
+  });
+
+  // onCameraChanged: 사용자가 드래그나 핀치로 화면을 조작할 때, 해당 좌표를 React 상태로 최신화하여 붙잡아 둠
+  const handleCameraChange = useCallback((ev: MapCameraChangedEvent) => {
+    setCameraProps(ev.detail);
+  }, []);
+
+  // 현재 위치(GPS) 획득
   useEffect(() => {
     if (navigator.geolocation && !userLocation) {
       navigator.geolocation.getCurrentPosition(
@@ -75,25 +86,23 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
             lng: position.coords.longitude,
           };
           setUserLocation(pos);
-          if (map) {
-             map.panTo(pos);
-          }
+          setCameraProps((prev) => ({ ...prev, center: pos, zoom: 15 }));
         },
         () => {
           console.log("Error getting location. Using default center.");
         }
       );
     }
-  }, [map, userLocation]);
+  }, [userLocation]);
 
+  // 내비게이션 버튼 클릭 시 현재 위치로 카메라 강제 이동
   const handleGetCurrentLocation = useCallback(() => {
-    if (userLocation && map) {
-      map.setZoom(15);
-      map.panTo(userLocation);
+    if (userLocation) {
+      setCameraProps((prev) => ({ ...prev, center: userLocation, zoom: 15 }));
     } else {
       alert("現在地を取得できません。ブラウザの設定を確認してください。");
     }
-  }, [userLocation, map]);
+  }, [userLocation]);
 
   const handleMarkerClick = useCallback((place: PlaceMarker) => {
     setSelectedPlace(place);
@@ -122,11 +131,11 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
   }, [places]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full overflow-hidden">
       <Map
         style={{ width: '100%', height: '100%' }}
-        defaultCenter={DEFAULT_CENTER}
-        defaultZoom={15}
+        {...cameraProps}
+        onCameraChanged={handleCameraChange}
         mapId="DEMO_MAP_ID"
         disableDefaultUI={true}
         gestureHandling="greedy"
@@ -151,7 +160,7 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
               position={{ lat: place.lat!, lng: place.lng! }}
               onClick={() => handleMarkerClick(place)}
             >
-              <div className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border-2 shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 ${
+              <div className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border-2 shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 ${
                 selectedPlace?.id === place.id 
                   ? "bg-black border-black text-white z-50 translate-y-[-4px]" 
                   : place.source_type === 'admin'
