@@ -9,34 +9,66 @@ const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchText";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const MY_SERVICE_ROLE_KEY = Deno.env.get("MY_SERVICE_ROLE_KEY");
 
-// 🚀 Google Quota Limit
+// 🚀 Google Quota Limit (데이터 유입량을 조절할 수 있습니다)
 const MAX_TOTAL_PLACES = 50; 
 
-// 🚀 Query Optimization
+// 🚀 Query Optimization (저렴하고 맛있는 가성비 식당 위주 검색)
 const SEARCH_QUERIES = [
-  "500円 ランチ 東京",
-  "ワンコイン ラーメン 東京"
+  "500円 ラン치 東京",
+  "ワンコイン ラーメン 東京",
+  "安くて美味しい お弁当 東京",
+  "激安 ラン치 浅草",
+  "1000円以下 グルメ 北千住"
 ];
 
 const BUCKET_NAME = "place-images";
 
-// 🚀 일본어 카테고리 매핑 함수
+// 🚀 [최종 현지화] 앱의 카테고리 명칭과 100% 일치하도록 매핑 수정
 function mapCategory(googleType: string | undefined): string {
-  if (!googleType) return "飲食店"; 
+  if (!googleType) return "定食・和食"; 
   
   const type = googleType.toLowerCase();
   
-  if (type.includes("ramen")) return "ラーメン";
-  if (type.includes("cafe") || type.includes("coffee") || type.includes("bakery") || type.includes("pastry")) return "カフェ・ベーカリー";
-  if (type.includes("sushi")) return "寿司・和食";
-  if (type.includes("izakaya") || type.includes("bar") || type.includes("pub")) return "居酒屋・バー";
-  if (type.includes("fast_food") || type.includes("hamburger") || type.includes("sandwich")) return "ファストフード";
-  if (type.includes("japanese")) return "和食";
-  if (type.includes("chinese")) return "中華料理";
-  if (type.includes("korean")) return "韓国料理";
-  if (type.includes("italian") || type.includes("french") || type.includes("western")) return "洋食・イタリアン";
+  // 1. 도시락/반찬 (Bento)
+  if (type.includes("bento") || type.includes("delica")) return "お弁当";
   
-  return "飲食店";
+  // 2. 라멘/면 (Ramen/Noodles)
+  if (type.includes("ramen") || type.includes("noodle") || type.includes("soba") || type.includes("udon")) return "ラーメン・麺";
+  
+  // 3. 규동/카레 (Donburi/Curry)
+  if (type.includes("curry") || type.includes("gyudon") || type.includes("beef_bowl")) return "牛丼・カレー";
+  
+  // 4. 중식 (Chinese)
+  if (type.includes("chinese")) return "中華料理";
+  
+  // 5. 한식 (Korean)
+  if (type.includes("korean")) return "韓国料理";
+  
+  // 6. 양식/파스타 (Western/Pasta)
+  if (type.includes("italian") || type.includes("french") || type.includes("pasta") || type.includes("pizza") || type.includes("western")) return "洋食・パスタ";
+  
+  // 7. 버거/치킨/피자 (Fast Food)
+  if (type.includes("hamburger") || type.includes("fast_food") || type.includes("sandwich")) return "バーガー";
+  if (type.includes("chicken")) return "チ킨";
+  if (type.includes("pizza")) return "ピザ";
+  
+  // 8. 야키니쿠/돈부리 (Meat/Bowl)
+  if (type.includes("yakiniku") || type.includes("steak") || type.includes("barbecue") || type.includes("meat")) return "焼肉・丼";
+  
+  // 9. 샐러드 (Salad)
+  if (type.includes("salad") || type.includes("vegetarian") || type.includes("vegan")) return "サラダ";
+  
+  // 10. 카페 (Cafe)
+  if (type.includes("cafe") || type.includes("coffee") || type.includes("tea")) return "カフェ";
+
+  // 11. 아시안 (Asian)
+  if (type.includes("thai") || type.includes("vietnamese") || type.includes("indian") || type.includes("asian")) return "アジアン";
+
+  // 12. 반찬/빵 (Side dish/Bakery)
+  if (type.includes("bakery") || type.includes("pastry") || type.includes("bread")) return "惣菜・パン";
+
+  // 기본값: 정식/일식 (Teishoku/Japanese)
+  return "定食・和食";
 }
 
 interface GooglePlace {
@@ -94,6 +126,7 @@ serve(async (req) => {
         const isNewPlace = !existingPlace;
         const mappedCategory = mapCategory(place.primaryType);
 
+        // RPC 함수 호출 (스키마가 동기화된 버전을 사용합니다)
         const { data: placeId, error: placeError } = await supabase.rpc('upsert_place_from_google', {
           p_google_place_id: place.id,
           p_name: place.displayName?.text || "Unknown",
@@ -112,7 +145,10 @@ serve(async (req) => {
           p_formatted_address: place.formattedAddress || null
         });
 
-        if (placeError) continue;
+        if (placeError) {
+          console.error(`Error processing ${place.id}:`, placeError.message);
+          continue;
+        }
 
         if (isNewPlace && place.photos && place.photos.length > 0) {
           const photo = place.photos[0];
@@ -123,7 +159,7 @@ serve(async (req) => {
             const storagePath = `google-places/${place.id}/0.jpg`;
             const { error: uploadError } = await supabase.storage
               .from(BUCKET_NAME)
-              .upload(storagePath, await imageRes.blob(), { contentType: 'image/jpeg', upsert: true });
+              .upload(storagePath, await imageRes.body, { contentType: 'image/jpeg', upsert: true });
 
             if (!uploadError) {
               const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(storagePath);
