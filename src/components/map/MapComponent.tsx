@@ -100,13 +100,25 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
     if (onMarkerClick) onMarkerClick(place.id);
   }, [onMarkerClick]);
 
-  // 마커 데이터 메모이제이션 (Math.random 루프 방지)
+  // 마커 데이터 메모이제이션 (Math.random 루프 방지 및 렌더링 떨림 해결)
   const markersWithCoords = useMemo(() => {
-    return places.map((p) => ({
-      ...p,
-      lat: p.lat || DEFAULT_CENTER.lat + (Math.random() - 0.5) * 0.01,
-      lng: p.lng || DEFAULT_CENTER.lng + (Math.random() - 0.5) * 0.01,
-    }));
+    return places.map((p) => {
+      let hash = 0;
+      if (p.id) {
+        for (let i = 0; i < p.id.length; i++) {
+          hash = p.id.charCodeAt(i) + ((hash << 5) - hash);
+        }
+      }
+      // 같은 ID라면 항상 동일한 위치 보장 (0~1 사이)
+      const pseudoRandom1 = Math.abs(Math.sin(hash)) || 0.5;
+      const pseudoRandom2 = Math.abs(Math.cos(hash)) || 0.5;
+
+      return {
+        ...p,
+        lat: p.lat || DEFAULT_CENTER.lat + (pseudoRandom1 - 0.5) * 0.01,
+        lng: p.lng || DEFAULT_CENTER.lng + (pseudoRandom2 - 0.5) * 0.01,
+      };
+    });
   }, [places]);
 
   return (

@@ -125,6 +125,7 @@
     @apply bg-[#FBFBFA] text-[#1D1D1F] antialiased;
     font-feature-settings: "palt";
     touch-action: manipulation;
+    overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
   html {
