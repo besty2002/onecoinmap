@@ -129,7 +129,7 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
         defaultZoom={15}
         mapId="DEMO_MAP_ID"
         disableDefaultUI={true}
-        gestureHandling="auto"
+        gestureHandling="greedy"
       >
         {userLocation && (
           <AdvancedMarker position={userLocation}>
