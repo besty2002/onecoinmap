@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
@@ -13,6 +13,13 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "ワンコインマップ | 500円〜1000円のコスパ最強グルメを探そう",
   description: "ワンコインマップは、500円から1000円程度のコスパの良い飲食店、カフェ、ランチ、テイクアウトのお店を地図から簡単に探せるサービスです。",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

@@ -110,7 +110,7 @@ function InnerMap({ places, onMarkerClick }: MapComponentProps) {
   }, [places]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full touch-none">
       <Map
         style={{ width: '100%', height: '100%' }}
         defaultCenter={DEFAULT_CENTER}
